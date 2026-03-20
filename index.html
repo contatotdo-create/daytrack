@@ -187,13 +187,15 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
     </div>
   </div>
 
-  <div class="sync-bar ok" id="sync-bar">☁️ Conectado ao Supabase</div>
+  <div class="sync-bar ok" id="sync-bar">☁️ Conectado ao Supabase • Powered by Gemini</div>
 </div>
 
 <script>
-const PASSWORD     = "160501";
-const SB_URL       = "https://ndgjdukylfngketshrep.supabase.co";
-const SB_KEY       = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5kZ2pkdWt5bGZuZ2tldHNocmVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI0MjI1OTMsImV4cCI6MjA1Nzk5ODU5M30.L1Is3fGSB_bQfNzUGEEMVlBnGnKYJqBMqGPt9hTQOIU";
+const PASSWORD      = "160501";
+const GEMINI_KEY    = "AIzaSyA6F5cr0ve00iuUBl-vyKrFXdlEs0idNuM";
+const GEMINI_URL    = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`;
+const SB_URL        = "https://ndgjdukylfngketshrep.supabase.co";
+const SB_KEY        = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5kZ2pkdWt5bGZuZ2tldHNocmVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI0MjI1OTMsImV4cCI6MjA1Nzk5ODU5M30.L1Is3fGSB_bQfNzUGEEMVlBnGnKYJqBMqGPt9hTQOIU";
 const DEFAULT_BASAL = 2000;
 
 const SYSTEM_PROMPT = `Você é um rastreador de saúde pessoal inteligente e motivador. Objetivo do usuário: PERDER PESO e GANHAR MASSA MAGRA (recomposição corporal).
@@ -216,7 +218,7 @@ CRITÉRIOS DO SCORE (0-10):
 - Ultraprocessados/fast-food: -0.5pt cada.
 - Mín 0, máx 10.
 
-TAGS obrigatórias:
+TAGS obrigatórias ao final de cada resposta relevante:
 Refeição: [KCAL_IN: número] [REFEICAO: nome]
 Treino: [KCAL_OUT: número] [TREINO: nome] [BPM: número]
 Humor: [HUMOR: número]
@@ -230,123 +232,95 @@ Português brasileiro. Tom: amigável, direto, motivador.`;
 async function sbReq(method, path, body) {
   const r = await fetch(`${SB_URL}/rest/v1/${path}`, {
     method,
-    headers: {
-      'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`,
-      'Content-Type': 'application/json',
-      'Prefer': method === 'POST' ? 'resolution=merge-duplicates,return=minimal' : 'return=minimal'
-    },
+    headers: { 'apikey':SB_KEY, 'Authorization':`Bearer ${SB_KEY}`, 'Content-Type':'application/json', 'Prefer': method==='POST'?'resolution=merge-duplicates,return=minimal':'return=minimal' },
     body: body ? JSON.stringify(body) : undefined
   });
   const txt = await r.text();
   return txt ? JSON.parse(txt) : null;
 }
-
-async function sbGetDay() {
-  try { const r = await sbReq('GET','daytrack_current?id=eq.1'); return r&&r[0]?r[0].data:null; } catch { return null; }
+async function sbGetDay() { try { const r=await sbReq('GET','daytrack_current?id=eq.1'); return r&&r[0]?r[0].data:null; } catch { return null; } }
+async function sbSaveDay(d) { try { await sbReq('POST','daytrack_current',{id:1,data:d,updated_at:new Date().toISOString()}); } catch(e){console.error(e);} }
+async function sbGetLog() { try { const r=await sbReq('GET','daytrack_log?order=day_num.asc'); return r||[]; } catch { return []; } }
+async function sbAddLog(e) {
+  try { await sbReq('POST','daytrack_log',{day_num:e.dayNum,date:e.date,kcal_in:e.kcalIn,kcal_out:e.kcalOut,basal:e.basal,deficit:e.deficit,humor:e.humor,score:e.score,workouts:e.workouts,meals:e.meals}); } catch(e){console.error(e);}
 }
-async function sbSaveDay(data) {
-  try { await sbReq('POST','daytrack_current',{id:1,data,updated_at:new Date().toISOString()}); } catch(e) { console.error(e); }
-}
-async function sbGetLog() {
-  try { const r = await sbReq('GET','daytrack_log?order=day_num.asc'); return r||[]; } catch { return []; }
-}
-async function sbAddLog(entry) {
-  try {
-    await sbReq('POST','daytrack_log',{
-      day_num:entry.dayNum, date:entry.date,
-      kcal_in:entry.kcalIn, kcal_out:entry.kcalOut,
-      basal:entry.basal, deficit:entry.deficit,
-      humor:entry.humor, score:entry.score,
-      workouts:entry.workouts, meals:entry.meals
-    });
-  } catch(e) { console.error(e); }
-}
-async function sbClearLog() {
-  try { await sbReq('DELETE','daytrack_log?day_num=gte.0'); } catch {}
-}
+async function sbClearLog() { try { await sbReq('DELETE','daytrack_log?day_num=gte.0'); } catch {} }
 
 // ── STATE ─────────────────────────────────────────────────
 const EMPTY = () => ({active:false,dayNum:0,kcalIn:0,kcalOut:0,humor:null,meals:[],workouts:[],score:null,finalizado:false,date:null,basal:DEFAULT_BASAL});
+let D=EMPTY(), LOG=[], MSGS=[], AI_HIST=[], loading=false, editingBasal=false;
 
-let D = EMPTY(), LOG = [], MSGS = [], AI_HIST = [], loading = false, editingBasal = false, API_KEY = '', currentTab = 'chat';
-
-function ls(k,v) { if(v===undefined) { try{return localStorage.getItem(k);}catch{return null;} } try{localStorage.setItem(k,v);}catch{} }
-
-function sync(status, txt) {
-  const el = document.getElementById('sync-bar');
-  el.className = 'sync-bar '+status;
-  el.textContent = txt;
-}
+function ls(k,v) { if(v===undefined){try{return localStorage.getItem(k);}catch{return null;}} try{localStorage.setItem(k,v);}catch{} }
+function sync(s,t) { const el=document.getElementById('sync-bar'); el.className='sync-bar '+s; el.textContent=t; }
 
 // ── AUTH ──────────────────────────────────────────────────
 function tryLogin() {
   const v = document.getElementById('pin-input').value;
-  if (v === PASSWORD) {
-    ls('auth','1');
-    document.getElementById('login-screen').style.display = 'none';
-    boot();
-  } else {
-    document.getElementById('login-err').textContent = 'Senha incorreta.';
-    document.getElementById('pin-input').value = '';
-  }
+  if (v===PASSWORD) { ls('auth','1'); document.getElementById('login-screen').style.display='none'; boot(); }
+  else { document.getElementById('login-err').textContent='Senha incorreta.'; document.getElementById('pin-input').value=''; }
 }
-document.getElementById('pin-input').addEventListener('keydown', e => { if(e.key==='Enter') tryLogin(); });
+document.getElementById('pin-input').addEventListener('keydown', e=>{ if(e.key==='Enter') tryLogin(); });
 
 // ── BOOT ──────────────────────────────────────────────────
 async function boot() {
-  API_KEY = ls('api_key') || '';
   sync('syncing','☁️ Sincronizando com a nuvem...');
-
   try {
     const [day, log] = await Promise.all([sbGetDay(), sbGetLog()]);
     if (day) D = day;
-    if (log && log.length > 0) {
-      LOG = log.map(r => ({
-        dayNum:r.day_num, date:r.date,
-        kcalIn:r.kcal_in, kcalOut:r.kcal_out,
-        basal:r.basal, deficit:r.deficit,
-        humor:r.humor, score:r.score,
-        workouts:r.workouts||[], meals:r.meals||[]
-      }));
-    }
-    sync('ok','☁️ Dados sincronizados ✓');
-  } catch {
-    sync('err','⚠️ Sem conexão — dados locais carregados');
-  }
+    if (log&&log.length>0) LOG = log.map(r=>({dayNum:r.day_num,date:r.date,kcalIn:r.kcal_in,kcalOut:r.kcal_out,basal:r.basal,deficit:r.deficit,humor:r.humor,score:r.score,workouts:r.workouts||[],meals:r.meals||[]}));
+    sync('ok','☁️ Dados sincronizados ✓ • Gemini AI');
+  } catch { sync('err','⚠️ Sem conexão — dados locais'); }
 
   const saved = ls('msgs');
   MSGS = saved ? JSON.parse(saved) : [welcome()];
 
-  document.getElementById('loading-screen').style.display = 'none';
-  document.getElementById('app').style.display = 'flex';
+  document.getElementById('loading-screen').style.display='none';
+  document.getElementById('app').style.display='flex';
   renderAll();
-
-  if (!API_KEY || !API_KEY.startsWith('sk-')) askApiKey();
 }
 
 function welcome() {
   return {role:'bot',text:'Olá! 👋 Sou seu rastreador diário de saúde.\n\nSeu objetivo: **perder peso e ganhar massa magra** 💪\n\nDiga **"iniciar o dia"** para começar:\n• 🍽️ Me conta o que comeu\n• 💪 Seus treinos (tipo, kcal, bpm)\n• 😊 Nota de humor (0 a 10)\n• 🔥 "minha basal é 2000" para ajustar\n• 📊 "finalizar o dia" para score final'};
 }
 
-function askApiKey() {
-  const k = prompt('Cole sua chave da API Anthropic (console.anthropic.com → API Keys):');
-  if (k && k.startsWith('sk-')) { API_KEY = k; ls('api_key', k); }
+// ── GEMINI API ────────────────────────────────────────────
+async function callGemini(userMsg) {
+  const contents = [];
+
+  // Build conversation history
+  for (const h of AI_HIST) {
+    contents.push({ role: h.role==='assistant'?'model':'user', parts:[{text:h.content}] });
+  }
+  contents.push({ role:'user', parts:[{text:userMsg}] });
+
+  const res = await fetch(GEMINI_URL, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      system_instruction: { parts:[{text:SYSTEM_PROMPT}] },
+      contents,
+      generationConfig:{ maxOutputTokens:1200, temperature:0.7 }
+    })
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message);
+  return data.candidates[0].content.parts[0].text;
 }
 
 // ── PARSE AI ──────────────────────────────────────────────
 function parseAI(text) {
   const m = p => text.match(p);
-  const ki = m(/\[KCAL_IN:\s*(\d+)\]/), rf = m(/\[REFEICAO:\s*([^\]]+)\]/);
-  const ko = m(/\[KCAL_OUT:\s*(\d+)\]/), tr = m(/\[TREINO:\s*([^\]]+)\]/), bp = m(/\[BPM:\s*(\d+)\]/);
-  const hu = m(/\[HUMOR:\s*([\d.]+)\]/), sc = m(/\[SCORE:\s*([\d.]+)\]/);
-  const ba = m(/\[BASAL:\s*(\d+)\]/), fi = m(/\[FINALIZADO:\s*true\]/i);
+  const ki=m(/\[KCAL_IN:\s*(\d+)\]/), rf=m(/\[REFEICAO:\s*([^\]]+)\]/);
+  const ko=m(/\[KCAL_OUT:\s*(\d+)\]/), tr=m(/\[TREINO:\s*([^\]]+)\]/), bp=m(/\[BPM:\s*(\d+)\]/);
+  const hu=m(/\[HUMOR:\s*([\d.]+)\]/), sc=m(/\[SCORE:\s*([\d.]+)\]/);
+  const ba=m(/\[BASAL:\s*(\d+)\]/), fi=m(/\[FINALIZADO:\s*true\]/i);
 
-  if (ki) { const v=parseInt(ki[1]); D.kcalIn+=v; D.meals.push({name:rf?rf[1].trim():`Refeição ${D.meals.length+1}`,kcal:v}); }
-  if (ko) { const v=parseInt(ko[1]); D.kcalOut+=v; D.workouts.push({type:tr?tr[1].trim():'Treino',kcal:v,bpm:bp?bp[1]:null}); }
-  if (hu) D.humor=parseFloat(hu[1]);
-  if (sc) D.score=parseFloat(sc[1]);
-  if (ba) D.basal=parseInt(ba[1]);
-  if (fi) { D.finalizado=true; D.active=false; }
+  if(ki){const v=parseInt(ki[1]);D.kcalIn+=v;D.meals.push({name:rf?rf[1].trim():`Refeição ${D.meals.length+1}`,kcal:v});}
+  if(ko){const v=parseInt(ko[1]);D.kcalOut+=v;D.workouts.push({type:tr?tr[1].trim():'Treino',kcal:v,bpm:bp?bp[1]:null});}
+  if(hu)D.humor=parseFloat(hu[1]);
+  if(sc)D.score=parseFloat(sc[1]);
+  if(ba)D.basal=parseInt(ba[1]);
+  if(fi){D.finalizado=true;D.active=false;}
 
   return text.replace(/\[KCAL_IN:\s*\d+\]/g,'').replace(/\[REFEICAO:\s*[^\]]+\]/g,'')
     .replace(/\[KCAL_OUT:\s*\d+\]/g,'').replace(/\[TREINO:\s*[^\]]+\]/g,'')
@@ -357,93 +331,88 @@ function parseAI(text) {
 
 // ── SEND ──────────────────────────────────────────────────
 async function sendMessage(text) {
-  const msg = (text || document.getElementById('msg-input').value).trim();
-  if (!msg || loading) return;
-  document.getElementById('msg-input').value = '';
+  const msg = (text||document.getElementById('msg-input').value).trim();
+  if (!msg||loading) return;
+  document.getElementById('msg-input').value='';
   updateSendBtn();
 
   const lower = msg.toLowerCase();
-  if (lower.includes('iniciar') && lower.includes('dia')) {
-    D = {...EMPTY(), active:true, dayNum:D.dayNum+1, date:new Date().toLocaleDateString('pt-BR'), basal:D.basal};
-    AI_HIST = [];
+  if (lower.includes('iniciar')&&lower.includes('dia')) {
+    D={...EMPTY(),active:true,dayNum:D.dayNum+1,date:new Date().toLocaleDateString('pt-BR'),basal:D.basal};
+    AI_HIST=[];
     await sbSaveDay(D);
   }
-  const finalizing = lower.includes('finalizar') && lower.includes('dia');
+  const finalizing = lower.includes('finalizar')&&lower.includes('dia');
 
   MSGS.push({role:'user',text:msg});
-  loading = true;
+  loading=true;
   renderMessages(); renderStatsBar();
 
-  const def = D.basal + D.kcalOut - D.kcalIn;
+  const def = D.basal+D.kcalOut-D.kcalIn;
   const ctx = D.active
     ? `[Dia ${D.dayNum} | ${D.date} | Basal:${D.basal}kcal | Ingerido:${D.kcalIn}kcal | Queimado:${D.kcalOut}kcal | Déficit real:${def}kcal | Humor:${D.humor!=null?D.humor+'/10':'—'} | Refeições:${D.meals.map(m=>m.name).join(',')||'nenhuma'} | Treinos:${D.workouts.map(w=>w.type).join(',')||'nenhum'} | Score:${D.score??'—'}]\n\n${msg}`
     : msg;
 
-  AI_HIST.push({role:'user',content:ctx});
-
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':API_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1200,system:SYSTEM_PROMPT,messages:AI_HIST})
-    });
-    const data = await res.json();
-    if (data.error) throw new Error(data.error.message);
-    const raw = data.content.map(c=>c.text||'').join('');
+    const raw = await callGemini(ctx);
     const clean = parseAI(raw);
+
+    AI_HIST.push({role:'user',content:ctx});
     AI_HIST.push({role:'assistant',content:raw});
+    if (AI_HIST.length>40) AI_HIST=AI_HIST.slice(-40);
 
     sync('syncing','☁️ Salvando na nuvem...');
     await sbSaveDay(D);
 
-    if (finalizing || D.finalizado) {
-      const realDef = D.basal + D.kcalOut - D.kcalIn;
-      const entry = {dayNum:D.dayNum,date:D.date,kcalIn:D.kcalIn,kcalOut:D.kcalOut,basal:D.basal,deficit:realDef,humor:D.humor,score:D.score,workouts:[...D.workouts],meals:[...D.meals]};
+    if (finalizing||D.finalizado) {
+      const realDef=D.basal+D.kcalOut-D.kcalIn;
+      const entry={dayNum:D.dayNum,date:D.date,kcalIn:D.kcalIn,kcalOut:D.kcalOut,basal:D.basal,deficit:realDef,humor:D.humor,score:D.score,workouts:[...D.workouts],meals:[...D.meals]};
       await sbAddLog(entry);
       LOG.push(entry);
     }
 
-    sync('ok','☁️ Salvo na nuvem ✓');
+    sync('ok','☁️ Salvo na nuvem ✓ • Gemini AI');
     MSGS.push({role:'bot',text:clean});
     ls('msgs', JSON.stringify(MSGS.slice(-80)));
 
   } catch(e) {
-    sync('err','⚠️ Erro ao salvar');
+    sync('err','⚠️ Erro: '+e.message);
     MSGS.push({role:'bot',text:`Erro: ${e.message}`});
   }
 
-  loading = false;
+  loading=false;
   renderAll();
 }
 
 function quickSend(t) { sendMessage(t); }
 
+// ── HELPERS ───────────────────────────────────────────────
+const hLbls=['','Péssimo 😞','Muito ruim 😣','Ruim 😕','Abaixo da média 😐','Mediano 😶','Ok 🙂','Bom 😊','Muito bom 😄','Ótimo 🤩','Perfeito! 🔥'];
+function sColor(s){if(s==null)return'#555';if(s>=8)return'#c8ff3e';if(s>=6)return'#3ec8ff';if(s>=4)return'#ffb347';return'#ff6b35';}
+function sLabel(s){if(s==null)return'—';if(s>=9)return'Dia Perfeito 🔥';if(s>=8)return'Excelente 💪';if(s>=7)return'Muito Bom ✅';if(s>=6)return'Bom 👍';if(s>=5)return'Regular 😐';if(s>=4)return'Abaixo da média ⚠️';return'Precisa melhorar ❌';}
+function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function fmt(t){return esc(t).replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');}
+
 // ── RENDER ────────────────────────────────────────────────
-const humorLbls = ['','Péssimo 😞','Muito ruim 😣','Ruim 😕','Abaixo da média 😐','Mediano 😶','Ok 🙂','Bom 😊','Muito bom 😄','Ótimo 🤩','Perfeito! 🔥'];
-function sc(s) { if(s==null)return'#555'; if(s>=8)return'#c8ff3e'; if(s>=6)return'#3ec8ff'; if(s>=4)return'#ffb347'; return'#ff6b35'; }
-function sl(s) { if(s==null)return'—'; if(s>=9)return'Dia Perfeito 🔥'; if(s>=8)return'Excelente 💪'; if(s>=7)return'Muito Bom ✅'; if(s>=6)return'Bom 👍'; if(s>=5)return'Regular 😐'; if(s>=4)return'Abaixo da média ⚠️'; return'Precisa melhorar ❌'; }
-function esc(t) { return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function fmt(t) { return esc(t).replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>'); }
+function renderAll(){renderStatsBar();renderMessages();renderData();renderHistory();renderBadge();}
 
-function renderAll() { renderStatsBar(); renderMessages(); renderData(); renderHistory(); renderBadge(); }
-
-function renderBadge() {
-  const b = document.getElementById('day-badge');
-  b.className = 'day-badge '+(D.active?'active':'inactive');
-  b.textContent = D.active?`● Dia ${D.dayNum}`:D.finalizado?`✓ Dia ${D.dayNum} finalizado`:'● Inativo';
+function renderBadge(){
+  const b=document.getElementById('day-badge');
+  b.className='day-badge '+(D.active?'active':'inactive');
+  b.textContent=D.active?`● Dia ${D.dayNum}`:D.finalizado?`✓ Dia ${D.dayNum} finalizado`:'● Inativo';
 }
 
-function renderStatsBar() {
-  const def = D.basal + D.kcalOut - D.kcalIn;
-  const items = [
+function renderStatsBar(){
+  const def=D.basal+D.kcalOut-D.kcalIn;
+  const items=[
     {label:'Basal',val:D.basal,unit:'kcal',color:'#a78bfa',editable:true},
     {label:'Ingerido',val:D.kcalIn,unit:'kcal',color:'#c8ff3e'},
     {label:'Queimado',val:D.kcalOut,unit:'kcal',color:'#ff6b35'},
     {label:def>=0?'Déficit':'Superávit',val:Math.abs(def),unit:'kcal',color:def>=0?'#c8ff3e':'#ff6b35'},
     {label:'Humor',val:D.humor!=null?D.humor:'—',unit:'/10',color:'#3ec8ff'},
-    {label:D.finalizado?'Score Final ✓':'Score Parcial',val:D.score!=null?D.score:'—',unit:'/10',color:sc(D.score)},
+    {label:D.finalizado?'Score Final ✓':'Score Parcial',val:D.score!=null?D.score:'—',unit:'/10',color:sColor(D.score)},
   ];
-  document.getElementById('stats-bar').innerHTML = items.map((s,i)=>`
+  document.getElementById('stats-bar').innerHTML=items.map((s,i)=>`
     <div class="stat-cell">
       <div class="stat-label">${s.label}${s.editable?`<span class="stat-edit-btn" onclick="startEditBasal()">✎</span>`:''}</div>
       ${s.editable&&editingBasal
@@ -451,46 +420,42 @@ function renderStatsBar() {
         :`<div class="stat-val" style="color:${s.color}${s.editable?';cursor:pointer':''}" ${s.editable?'onclick="startEditBasal()"':''}>${s.val}</div>`}
       <div class="stat-unit">${s.unit}</div>
     </div>`).join('');
-  if (editingBasal) { const i=document.getElementById('basal-inp'); if(i){i.focus();i.select();} }
+  if(editingBasal){const i=document.getElementById('basal-inp');if(i){i.focus();i.select();}}
 }
 
-function startEditBasal() { editingBasal=true; renderStatsBar(); }
-function cancelEditBasal() { editingBasal=false; renderStatsBar(); }
-async function commitBasal(v) {
+function startEditBasal(){editingBasal=true;renderStatsBar();}
+function cancelEditBasal(){editingBasal=false;renderStatsBar();}
+async function commitBasal(v){
   const n=parseInt(v);
-  if (!isNaN(n)&&n>=500&&n<=6000) { D.basal=n; await sbSaveDay(D); }
-  editingBasal=false; renderStatsBar();
+  if(!isNaN(n)&&n>=500&&n<=6000){D.basal=n;await sbSaveDay(D);}
+  editingBasal=false;renderStatsBar();
 }
 
-function renderMessages() {
-  let html = MSGS.map(m=>`
-    <div class="msg ${m.role}">
-      <div class="msg-av">${m.role==='user'?'EU':'AI'}</div>
-      <div class="msg-bubble">${fmt(m.text)}</div>
-    </div>`).join('');
-  if (loading) html+=`<div class="msg bot"><div class="msg-av">AI</div><div class="msg-bubble"><div class="typing"><span></span><span></span><span></span></div></div></div>`;
-  const c = document.getElementById('messages');
-  c.innerHTML = html;
-  c.scrollTop = c.scrollHeight;
+function renderMessages(){
+  let h=MSGS.map(m=>`<div class="msg ${m.role}"><div class="msg-av">${m.role==='user'?'EU':'AI'}</div><div class="msg-bubble">${fmt(m.text)}</div></div>`).join('');
+  if(loading)h+=`<div class="msg bot"><div class="msg-av">AI</div><div class="msg-bubble"><div class="typing"><span></span><span></span><span></span></div></div></div>`;
+  const c=document.getElementById('messages');
+  c.innerHTML=h;
+  c.scrollTop=c.scrollHeight;
 }
 
-function renderData() {
-  const def = D.basal + D.kcalOut - D.kcalIn;
-  let h = '';
+function renderData(){
+  const def=D.basal+D.kcalOut-D.kcalIn;
+  let h='';
 
   h+=`<div class="section"><div class="section-title">🍽️ Refeições</div>`;
-  if (!D.meals.length) h+=`<div class="empty">Nenhuma refeição registrada ainda</div>`;
-  else { D.meals.forEach(m=>h+=`<div class="row"><span class="row-left">${esc(m.name)}</span><span class="row-right" style="color:#c8ff3e">+${m.kcal} kcal</span></div>`); h+=`<div class="total-row"><span style="color:#888">Total</span><span style="color:#c8ff3e">${D.kcalIn} kcal</span></div>`; }
+  if(!D.meals.length)h+=`<div class="empty">Nenhuma refeição registrada ainda</div>`;
+  else{D.meals.forEach(m=>h+=`<div class="row"><span class="row-left">${esc(m.name)}</span><span class="row-right" style="color:#c8ff3e">+${m.kcal} kcal</span></div>`);h+=`<div class="total-row"><span style="color:#888">Total</span><span style="color:#c8ff3e">${D.kcalIn} kcal</span></div>`;}
   h+=`</div>`;
 
   h+=`<div class="section"><div class="section-title">💪 Treinos</div>`;
-  if (!D.workouts.length) h+=`<div class="empty">Nenhum treino registrado ainda</div>`;
+  if(!D.workouts.length)h+=`<div class="empty">Nenhum treino registrado ainda</div>`;
   else D.workouts.forEach(w=>h+=`<div class="workout-card"><div class="workout-type">${esc(w.type)}</div><div class="workout-meta"><span>🔥 ${w.kcal} kcal</span>${w.bpm?`<span>❤️ ${w.bpm} bpm</span>`:''}</div></div>`);
   h+=`</div>`;
 
   h+=`<div class="section"><div class="section-title">😊 Humor</div>`;
-  if (D.humor==null) h+=`<div class="empty">Nota de humor não registrada</div>`;
-  else h+=`<div class="humor-center"><div class="humor-big" style="color:${D.humor>=7?'#c8ff3e':D.humor>=4?'#3ec8ff':'#ff6b35'}">${D.humor}</div><div class="humor-sub">${humorLbls[Math.round(D.humor)]||''}</div><div class="bar-wrap" style="margin-top:10px"><div class="bar-fill" style="width:${D.humor*10}%;background:linear-gradient(90deg,#ff6b35,#c8ff3e)"></div></div></div>`;
+  if(D.humor==null)h+=`<div class="empty">Nota de humor não registrada</div>`;
+  else h+=`<div class="humor-center"><div class="humor-big" style="color:${D.humor>=7?'#c8ff3e':D.humor>=4?'#3ec8ff':'#ff6b35'}">${D.humor}</div><div class="humor-sub">${hLbls[Math.round(D.humor)]||''}</div><div class="bar-wrap" style="margin-top:10px"><div class="bar-fill" style="width:${D.humor*10}%;background:linear-gradient(90deg,#ff6b35,#c8ff3e)"></div></div></div>`;
   h+=`</div>`;
 
   h+=`<div class="section"><div class="section-title">⚖️ Balanço Calórico Real</div>
@@ -501,90 +466,64 @@ function renderData() {
     <div class="total-row"><span style="color:#888">${def>=0?'Déficit real':'Superávit'}</span><span style="color:${def>=0?'#c8ff3e':'#ff6b35'}">${Math.abs(def)} kcal</span></div>
   </div>`;
 
-  if (D.score!=null) {
-    const c=sc(D.score);
+  if(D.score!=null){
+    const c=sColor(D.score);
     h+=`<div class="section"><div class="section-title">${D.finalizado?'⭐ Score Final':'⭐ Score Parcial (em andamento)'}</div>
       <div class="score-display">
         <div class="score-big" style="color:${c}">${D.score}</div>
-        <div style="font-size:14px;font-weight:700;color:${c};margin-top:6px">${sl(D.score)}</div>
+        <div style="font-size:14px;font-weight:700;color:${c};margin-top:6px">${sLabel(D.score)}</div>
         ${!D.finalizado?'<div class="hint" style="margin-top:4px">atualizado a cada registro</div>':''}
         <div class="bar-wrap"><div class="bar-fill" style="width:${D.score*10}%;background:linear-gradient(90deg,#ff6b35,${c})"></div></div>
         <div class="hint">objetivo: perder peso + ganhar massa magra</div>
-      </div>
-    </div>`;
+      </div></div>`;
   }
 
-  document.getElementById('data-content').innerHTML = h;
+  document.getElementById('data-content').innerHTML=h;
 }
 
-function renderHistory() {
-  let h = '';
-  if (!LOG.length) {
+function renderHistory(){
+  let h='';
+  if(!LOG.length){
     h=`<div class="empty-state"><div style="font-size:40px;margin-bottom:12px">📋</div><div style="color:var(--dim);font-size:14px">Nenhum dia finalizado ainda.</div><div style="color:#333;font-size:11px;margin-top:6px">Dias finalizados ficam salvos na nuvem permanentemente.</div></div>`;
   } else {
-    const avg = (LOG.reduce((s,d)=>s+(d.score||0),0)/LOG.length).toFixed(1);
-    h+=`<div class="sum-grid">${[
-      {l:'Dias',v:LOG.length,c:'#3ec8ff'},
-      {l:'Score médio',v:`${avg}/10`,c:sc(parseFloat(avg))},
-      {l:'Treinos',v:LOG.reduce((s,d)=>s+d.workouts.length,0),c:'#ff6b35'}
-    ].map(c=>`<div class="sum-card"><div class="sum-label">${c.l}</div><div class="sum-val" style="color:${c.c}">${c.v}</div></div>`).join('')}</div>`;
-
+    const avg=(LOG.reduce((s,d)=>s+(d.score||0),0)/LOG.length).toFixed(1);
+    h+=`<div class="sum-grid">${[{l:'Dias',v:LOG.length,c:'#3ec8ff'},{l:'Score médio',v:`${avg}/10`,c:sColor(parseFloat(avg))},{l:'Treinos',v:LOG.reduce((s,d)=>s+d.workouts.length,0),c:'#ff6b35'}].map(c=>`<div class="sum-card"><div class="sum-label">${c.l}</div><div class="sum-val" style="color:${c.c}">${c.v}</div></div>`).join('')}</div>`;
     [...LOG].reverse().forEach(d=>{
-      const c=sc(d.score);
-      h+=`<div class="day-card">
-        <div class="day-header">
-          <div><div class="day-num">Dia ${d.dayNum}</div><div class="day-date">${d.date}</div></div>
-          <div><div class="day-score-big" style="color:${c}">${d.score??'—'}</div><div class="day-slbl" style="color:${c}">${sl(d.score)}</div></div>
-        </div>
-        <div class="day-grid">${[
-          {l:'Ingerido',v:d.kcalIn,u:'kcal',c:'#c8ff3e'},
-          {l:'Queimado',v:d.kcalOut,u:'kcal',c:'#ff6b35'},
-          {l:d.deficit>=0?'Déficit':'Superáv.',v:Math.abs(d.deficit),u:'kcal',c:d.deficit>=0?'#c8ff3e':'#ff6b35'},
-          {l:'Humor',v:d.humor!=null?d.humor:'—',u:'/10',c:'#3ec8ff'}
-        ].map(s=>`<div class="day-stat"><div class="day-stat-l">${s.l}</div><div class="day-stat-v" style="color:${s.c}">${s.v}</div><div class="day-stat-u">${s.u}</div></div>`).join('')}</div>
+      const c=sColor(d.score);
+      h+=`<div class="day-card"><div class="day-header"><div><div class="day-num">Dia ${d.dayNum}</div><div class="day-date">${d.date}</div></div><div><div class="day-score-big" style="color:${c}">${d.score??'—'}</div><div class="day-slbl" style="color:${c}">${sLabel(d.score)}</div></div></div>
+        <div class="day-grid">${[{l:'Ingerido',v:d.kcalIn,u:'kcal',c:'#c8ff3e'},{l:'Queimado',v:d.kcalOut,u:'kcal',c:'#ff6b35'},{l:d.deficit>=0?'Déficit':'Superáv.',v:Math.abs(d.deficit),u:'kcal',c:d.deficit>=0?'#c8ff3e':'#ff6b35'},{l:'Humor',v:d.humor!=null?d.humor:'—',u:'/10',c:'#3ec8ff'}].map(s=>`<div class="day-stat"><div class="day-stat-l">${s.l}</div><div class="day-stat-v" style="color:${s.c}">${s.v}</div><div class="day-stat-u">${s.u}</div></div>`).join('')}</div>
         ${d.workouts.length?`<div class="day-wkt">💪 ${d.workouts.map(w=>esc(w.type)).join(' · ')}</div>`:''}
         <div class="day-prog"><div class="day-prog-fill" style="width:${(d.score||0)*10}%;background:linear-gradient(90deg,#ff6b35,${c})"></div></div>
       </div>`;
     });
-
     h+=`<button class="clear-btn" onclick="clearHistory()">🗑️ Limpar histórico</button>`;
   }
-  document.getElementById('history-content').innerHTML = h;
+  document.getElementById('history-content').innerHTML=h;
 }
 
-async function clearHistory() {
-  if (!confirm('Apagar todo o histórico da nuvem?')) return;
-  await sbClearLog();
-  LOG = [];
-  renderHistory();
+async function clearHistory(){
+  if(!confirm('Apagar todo o histórico da nuvem?')) return;
+  await sbClearLog(); LOG=[]; renderHistory();
 }
 
-// ── TABS ──────────────────────────────────────────────────
-function switchTab(tab) {
-  currentTab = tab;
+function switchTab(tab){
   ['chat','dados','historico'].forEach(t=>{
     const p=document.getElementById(`panel-${t}`);
-    p.style.display = t===tab?(t==='chat'?'flex':'flex'):'none';
-    p.style.flexDirection = 'column';
+    p.style.display=t===tab?'flex':'none';
+    p.style.flexDirection='column';
     document.getElementById(`tab-${t}`).className='tab-btn '+(t===tab?'active':'inactive');
   });
-  if(tab==='dados') renderData();
-  if(tab==='historico') renderHistory();
+  if(tab==='dados')renderData();
+  if(tab==='historico')renderHistory();
 }
 
-// ── INPUT ─────────────────────────────────────────────────
-const inp = document.getElementById('msg-input');
-const sbtn = document.getElementById('send-btn');
-function updateSendBtn() {
-  const ok = inp.value.trim().length>0 && !loading;
-  sbtn.className='send-btn '+(ok?'ready':'disabled');
-}
-inp.addEventListener('input',()=>{ inp.style.height='42px'; inp.style.height=Math.min(inp.scrollHeight,100)+'px'; updateSendBtn(); });
-inp.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();} });
+const inp=document.getElementById('msg-input');
+function updateSendBtn(){const ok=inp.value.trim().length>0&&!loading;document.getElementById('send-btn').className='send-btn '+(ok?'ready':'disabled');}
+inp.addEventListener('input',()=>{inp.style.height='42px';inp.style.height=Math.min(inp.scrollHeight,100)+'px';updateSendBtn();});
+inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}});
 
-// ── START ─────────────────────────────────────────────────
-if (ls('auth')==='1') { boot(); }
-else { document.getElementById('loading-screen').style.display='none'; document.getElementById('login-screen').style.display='flex'; }
+if(ls('auth')==='1'){boot();}
+else{document.getElementById('loading-screen').style.display='none';document.getElementById('login-screen').style.display='flex';}
 </script>
 </body>
 </html>
