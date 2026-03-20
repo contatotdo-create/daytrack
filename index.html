@@ -9,7 +9,6 @@
 <meta name="apple-mobile-web-app-title" content="DayTrack">
 <meta name="theme-color" content="#0c0c14">
 <title>DayTrack</title>
-<link rel="manifest" id="manifest-placeholder">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 :root{
@@ -19,78 +18,41 @@
 }
 html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;}
 
-/* ── LOGIN ── */
-#login-screen{
-  position:fixed;inset:0;background:var(--bg);
-  display:flex;align-items:center;justify-content:center;z-index:999;
-  flex-direction:column;gap:24px;padding:32px;
-}
+#loading-screen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:999;}
+.loading-logo{font-size:32px;font-weight:900;letter-spacing:4px;color:var(--accent);}
+.loading-txt{font-size:13px;color:var(--dim);}
+
+#login-screen{position:fixed;inset:0;background:var(--bg);display:none;align-items:center;justify-content:center;z-index:998;flex-direction:column;gap:24px;padding:32px;}
 .login-logo{font-size:36px;font-weight:900;letter-spacing:4px;color:var(--accent);}
 .login-sub{font-size:13px;color:var(--dim);text-align:center;}
 .login-box{width:100%;max-width:320px;display:flex;flex-direction:column;gap:12px;}
-.login-input{
-  background:var(--surface2);border:1px solid var(--border2);border-radius:12px;
-  padding:14px 16px;color:var(--text);font-size:16px;outline:none;
-  font-family:inherit;letter-spacing:4px;text-align:center;
-  transition:border-color .2s;
-}
+.login-input{background:var(--surface2);border:1px solid var(--border2);border-radius:12px;padding:14px 16px;color:var(--text);font-size:16px;outline:none;font-family:inherit;letter-spacing:4px;text-align:center;transition:border-color .2s;}
 .login-input:focus{border-color:var(--accent);}
-.login-btn{
-  background:var(--accent);color:#000;border:none;border-radius:12px;
-  padding:14px;font-size:15px;font-weight:700;cursor:pointer;
-  font-family:inherit;transition:opacity .2s;
-}
-.login-btn:hover{opacity:.9;}
+.login-btn{background:var(--accent);color:#000;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;}
 .login-err{color:var(--orange);font-size:12px;text-align:center;min-height:16px;}
 
-/* ── APP ── */
-#app{display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden;}
-
-/* Header */
-.header{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:12px 16px;border-bottom:1px solid var(--border);
-  background:var(--surface);flex-shrink:0;
-  padding-top:max(12px, env(safe-area-inset-top));
-}
+#app{display:none;flex-direction:column;height:100vh;height:100dvh;overflow:hidden;}
+.header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0;padding-top:max(12px,env(safe-area-inset-top));}
 .logo{font-size:18px;font-weight:900;letter-spacing:2px;color:var(--accent);}
-.day-badge{
-  font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;
-  transition:all .3s;
-}
+.day-badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;}
 .day-badge.active{background:rgba(200,255,62,.15);color:var(--accent);border:1px solid rgba(200,255,62,.3);}
 .day-badge.inactive{background:rgba(255,255,255,.05);color:var(--dim);border:1px solid #222;}
 .tabs{display:flex;gap:3px;}
-.tab-btn{
-  padding:5px 10px;border-radius:7px;border:none;cursor:pointer;
-  font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:1px;
-  font-family:inherit;transition:all .2s;
-}
+.tab-btn{padding:5px 10px;border-radius:7px;border:none;cursor:pointer;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:1px;font-family:inherit;}
 .tab-btn.active{background:var(--accent);color:#000;}
 .tab-btn.inactive{background:transparent;color:var(--dim);}
 
-/* Stats bar */
-.stats-bar{
-  display:grid;grid-template-columns:repeat(6,1fr);
-  border-bottom:1px solid var(--border);flex-shrink:0;
-  overflow-x:auto;scrollbar-width:none;
-}
+.stats-bar{display:grid;grid-template-columns:repeat(6,1fr);border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto;scrollbar-width:none;}
 .stats-bar::-webkit-scrollbar{display:none;}
-.stat-cell{padding:7px 8px;border-right:1px solid var(--border);min-width:60px;}
+.stat-cell{padding:7px 8px;border-right:1px solid var(--border);min-width:58px;}
 .stat-cell:last-child{border-right:none;}
 .stat-label{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);margin-bottom:2px;display:flex;align-items:center;gap:3px;}
-.stat-edit-btn{cursor:pointer;color:var(--purple);font-size:9px;line-height:1;}
+.stat-edit-btn{cursor:pointer;color:var(--purple);font-size:9px;}
 .stat-val{font-size:18px;font-weight:800;line-height:1;}
 .stat-unit{font-size:9px;color:#444;margin-top:1px;}
-.stat-edit-input{
-  width:100%;background:transparent;border:none;border-bottom:1px solid var(--purple);
-  color:var(--purple);font-size:18px;font-weight:800;outline:none;font-family:inherit;
-}
+.stat-edit-input{width:100%;background:transparent;border:none;border-bottom:1px solid var(--purple);color:var(--purple);font-size:18px;font-weight:800;outline:none;font-family:inherit;}
 
-/* Main content */
 .main-content{flex:1;overflow:hidden;display:flex;flex-direction:column;}
-
-/* Chat */
 .messages{flex:1;overflow-y:auto;padding:14px 14px 0;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:var(--border2) transparent;}
 .msg{display:flex;gap:8px;max-width:88%;animation:fadeUp .25s ease;}
 .msg.user{align-self:flex-end;flex-direction:row-reverse;}
@@ -101,94 +63,68 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .msg-bubble{padding:9px 13px;font-size:13.5px;line-height:1.6;}
 .msg.user .msg-bubble{background:var(--accent);color:#000;border-radius:12px 2px 12px 12px;font-weight:600;}
 .msg.bot .msg-bubble{background:var(--surface2);color:var(--text);border:1px solid var(--border2);border-radius:2px 12px 12px 12px;}
-
 .typing{display:flex;gap:4px;align-items:center;padding:10px 13px;}
 .typing span{width:5px;height:5px;border-radius:50%;background:var(--accent);display:inline-block;animation:bounce 1.1s infinite;}
 .typing span:nth-child(2){animation-delay:.2s;}
 .typing span:nth-child(3){animation-delay:.4s;}
 
-/* Input area */
-.input-area{
-  padding:10px 14px;border-top:1px solid var(--border);background:var(--surface);flex-shrink:0;
-  padding-bottom:max(10px, env(safe-area-inset-bottom));
-}
+.input-area{padding:10px 14px;border-top:1px solid var(--border);background:var(--surface);flex-shrink:0;padding-bottom:max(10px,env(safe-area-inset-bottom));}
 .quick-btns{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;}
-.quick-btn{
-  padding:4px 10px;border-radius:20px;border:1px solid var(--border2);
-  background:transparent;color:var(--dim);font-size:11px;cursor:pointer;font-family:inherit;
-  transition:all .2s;
-}
+.quick-btn{padding:4px 10px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--dim);font-size:11px;cursor:pointer;font-family:inherit;transition:all .2s;}
 .quick-btn:hover{border-color:var(--accent);color:var(--accent);}
 .input-row{display:flex;gap:8px;}
-.chat-textarea{
-  flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;
-  padding:10px 13px;color:var(--text);font-size:14px;outline:none;resize:none;
-  font-family:inherit;min-height:42px;max-height:100px;transition:border-color .2s;
-  scrollbar-width:thin;scrollbar-color:var(--border2) transparent;
-}
+.chat-textarea{flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:10px 13px;color:var(--text);font-size:14px;outline:none;resize:none;font-family:inherit;min-height:42px;max-height:100px;transition:border-color .2s;}
 .chat-textarea:focus{border-color:var(--accent);}
-.send-btn{
-  width:42px;height:42px;border-radius:10px;border:none;font-size:15px;
-  cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;
-  transition:all .2s;
-}
+.send-btn{width:42px;height:42px;border-radius:10px;border:none;font-size:15px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
 .send-btn.ready{background:var(--accent);color:#000;}
 .send-btn.disabled{background:var(--border);color:#444;cursor:not-allowed;}
 
-/* Data tab */
-.data-scroll{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px;scrollbar-width:thin;scrollbar-color:var(--border2) transparent;}
+.data-scroll{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px;scrollbar-width:thin;}
 .section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;}
 .section-title{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:10px;}
 .row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--darker);font-size:13px;}
-.row:last-child{border-bottom:none;}
 .row-left{color:#aaa;}
 .row-right{font-weight:600;font-family:monospace;}
 .empty{text-align:center;color:#444;font-size:12px;padding:10px 0;}
 .workout-card{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;margin-bottom:8px;}
-.workout-card:last-child{margin-bottom:0;}
 .workout-type{font-weight:700;color:var(--orange);font-size:13px;margin-bottom:3px;}
 .workout-meta{font-size:12px;color:var(--muted);display:flex;gap:12px;}
 .total-row{border-top:1px solid var(--border2);padding-top:8px;margin-top:4px;display:flex;justify-content:space-between;font-size:13px;font-weight:700;}
 .score-display{text-align:center;padding:12px 0;}
 .score-big{font-size:72px;font-weight:900;line-height:1;}
-.score-lbl{font-size:14px;font-weight:700;margin-top:6px;}
-.score-bar-wrap{height:5px;background:var(--border);border-radius:3px;margin:12px 0 5px;overflow:hidden;}
-.score-bar-fill{height:100%;border-radius:3px;transition:width .6s;}
-.score-hint{font-size:10px;color:#444;}
+.bar-wrap{height:5px;background:var(--border);border-radius:3px;margin:12px 0 5px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:3px;transition:width .6s;}
+.hint{font-size:10px;color:#444;}
 .humor-center{text-align:center;padding:8px 0;}
 .humor-big{font-size:48px;font-weight:900;line-height:1;}
 .humor-sub{font-size:11px;color:var(--muted);margin-top:2px;}
-.humor-bar-wrap{height:4px;background:var(--border);border-radius:2px;margin:10px 0 0;overflow:hidden;}
-.humor-bar-fill{height:100%;background:linear-gradient(90deg,var(--orange),var(--accent));border-radius:2px;}
 
-/* History tab */
-.history-scroll{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px;scrollbar-width:thin;scrollbar-color:var(--border2) transparent;}
-.summary-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
-.summary-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;}
-.summary-label{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:5px;}
-.summary-val{font-size:22px;font-weight:800;}
+.history-scroll{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px;scrollbar-width:thin;}
+.sum-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.sum-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;}
+.sum-label{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:5px;}
+.sum-val{font-size:22px;font-weight:800;}
 .day-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:13px;}
-.day-card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
-.day-card-num{font-weight:700;font-size:14px;}
-.day-card-date{font-size:10px;color:var(--dim);margin-top:2px;}
-.day-card-score{font-size:28px;font-weight:900;line-height:1;text-align:right;}
-.day-card-slbl{font-size:9px;text-align:right;}
-.day-stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;}
+.day-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.day-num{font-weight:700;font-size:14px;}
+.day-date{font-size:10px;color:var(--dim);margin-top:2px;}
+.day-score-big{font-size:28px;font-weight:900;line-height:1;text-align:right;}
+.day-slbl{font-size:9px;text-align:right;}
+.day-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;}
 .day-stat{background:var(--surface2);border-radius:7px;padding:7px 8px;}
 .day-stat-l{font-size:8px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;}
 .day-stat-v{font-size:15px;font-weight:800;}
 .day-stat-u{font-size:8px;color:#444;}
-.day-workouts{margin-top:7px;font-size:10px;color:var(--dim);}
-.day-progress{height:3px;background:var(--darker);border-radius:2px;margin-top:10px;overflow:hidden;}
-.day-progress-fill{height:100%;border-radius:2px;}
+.day-wkt{margin-top:7px;font-size:10px;color:var(--dim);}
+.day-prog{height:3px;background:var(--darker);border-radius:2px;margin-top:10px;overflow:hidden;}
+.day-prog-fill{height:100%;border-radius:2px;}
 .clear-btn{padding:8px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:#444;font-size:11px;cursor:pointer;font-family:inherit;}
 .empty-state{text-align:center;padding:50px 20px;}
-.empty-icon{font-size:40px;margin-bottom:12px;}
-.empty-txt{color:var(--dim);font-size:14px;}
-.empty-sub{color:#333;font-size:11px;margin-top:6px;}
 
-/* Loading screen */
-#loading-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:13px;z-index:998;}
+.sync-bar{font-size:10px;text-align:center;padding:4px;background:var(--surface);border-top:1px solid var(--border);flex-shrink:0;}
+.sync-bar.syncing{color:var(--blue);}
+.sync-bar.ok{color:var(--accent);}
+.sync-bar.err{color:var(--orange);}
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
 @keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.5;}30%{transform:translateY(-5px);opacity:1;}}
@@ -198,22 +134,22 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 </head>
 <body>
 
-<div id="loading-screen">Carregando...</div>
+<div id="loading-screen">
+  <div class="loading-logo">DAYTRACK</div>
+  <div class="loading-txt">Carregando seus dados...</div>
+</div>
 
-<!-- LOGIN -->
-<div id="login-screen" style="display:none;">
+<div id="login-screen">
   <div class="login-logo">DAYTRACK</div>
-  <div class="login-sub">Seu rastreador pessoal de saúde</div>
+  <div class="login-sub">Seu rastreador pessoal de saúde 💪</div>
   <div class="login-box">
-    <input class="login-input" type="password" id="pin-input" placeholder="••••••" maxlength="20" autocomplete="current-password">
+    <input class="login-input" type="password" id="pin-input" placeholder="••••••" maxlength="20">
     <button class="login-btn" onclick="tryLogin()">Entrar</button>
     <div class="login-err" id="login-err"></div>
   </div>
 </div>
 
-<!-- APP -->
-<div id="app" style="display:none;">
-  <!-- Header -->
+<div id="app">
   <div class="header">
     <div style="display:flex;align-items:center;gap:8px;">
       <span class="logo">DAYTRACK</span>
@@ -226,12 +162,9 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
     </div>
   </div>
 
-  <!-- Stats bar -->
   <div class="stats-bar" id="stats-bar"></div>
 
-  <!-- Content panels -->
   <div class="main-content">
-    <!-- CHAT -->
     <div id="panel-chat" style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
       <div class="messages" id="messages"></div>
       <div class="input-area">
@@ -246,38 +179,36 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
         </div>
       </div>
     </div>
-
-    <!-- DADOS -->
-    <div id="panel-dados" style="display:none;flex:1;overflow:hidden;">
+    <div id="panel-dados" style="display:none;flex:1;overflow:hidden;flex-direction:column;">
       <div class="data-scroll" id="data-content"></div>
     </div>
-
-    <!-- HISTÓRICO -->
-    <div id="panel-historico" style="display:none;flex:1;overflow:hidden;">
+    <div id="panel-historico" style="display:none;flex:1;overflow:hidden;flex-direction:column;">
       <div class="history-scroll" id="history-content"></div>
     </div>
   </div>
+
+  <div class="sync-bar ok" id="sync-bar">☁️ Conectado ao Supabase</div>
 </div>
 
 <script>
-// ── CONFIG ──────────────────────────────────────────────
-const PASSWORD = "160501";
-const API_KEY_PLACEHOLDER = "YOUR_ANTHROPIC_API_KEY"; // Replaced at deploy time or entered by user
+const PASSWORD     = "160501";
+const SB_URL       = "https://ndgjdukylfngketshrep.supabase.co";
+const SB_KEY       = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5kZ2pkdWt5bGZuZ2tldHNocmVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI0MjI1OTMsImV4cCI6MjA1Nzk5ODU5M30.L1Is3fGSB_bQfNzUGEEMVlBnGnKYJqBMqGPt9hTQOIU";
 const DEFAULT_BASAL = 2000;
 
 const SYSTEM_PROMPT = `Você é um rastreador de saúde pessoal inteligente e motivador. Objetivo do usuário: PERDER PESO e GANHAR MASSA MAGRA (recomposição corporal).
 
-Déficit real = Basal + Kcal queimadas no treino − Kcal ingeridas (basal informada no contexto).
+Déficit real = Basal + Kcal queimadas no treino − Kcal ingeridas.
 
-1. REFEIÇÕES: Calcule as calorias. Use estimativas realistas para porções médias brasileiras.
-2. TREINOS: Feedback motivador. Comente intensidade pelo BPM (60-100 baixo, 100-140 moderado, 140-170 alto, 170+ máximo).
+1. REFEIÇÕES: Calcule as calorias. Estimativas realistas para porções médias brasileiras.
+2. TREINOS: Feedback motivador. Intensidade pelo BPM (60-100 baixo, 100-140 moderado, 140-170 alto, 170+ máximo).
 3. HUMOR: Nota 0-10, resposta empática.
 4. BASAL: Se usuário informar basal, registre.
 5. A CADA MENSAGEM que registre algo, inclua SCORE PARCIAL atualizado.
 6. FINALIZAR DIA: Resumo completo com score FINAL fechado.
 
 CRITÉRIOS DO SCORE (0-10):
-- Déficit real 300-600kcal: +3pts. Déficit >800kcal: +2pts. Superávit: 0pts.
+- Déficit real 300-600kcal: +3pts. >800kcal: +2pts. Superávit: 0pts.
 - Treino: +3pts. Musculação: +0.5 bônus. Sem treino: 0.
 - BPM zona certa: até +1pt.
 - Humor: nota/10 × 2pts.
@@ -295,464 +226,365 @@ Finalizado: [FINALIZADO: true]
 
 Português brasileiro. Tom: amigável, direto, motivador.`;
 
-// ── STATE ────────────────────────────────────────────────
-const EMPTY_DAY = () => ({ active:false, dayNum:0, kcalIn:0, kcalOut:0, humor:null, meals:[], workouts:[], score:null, finalizado:false, date:null, basal:DEFAULT_BASAL });
+// ── SUPABASE ─────────────────────────────────────────────
+async function sbReq(method, path, body) {
+  const r = await fetch(`${SB_URL}/rest/v1/${path}`, {
+    method,
+    headers: {
+      'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': method === 'POST' ? 'resolution=merge-duplicates,return=minimal' : 'return=minimal'
+    },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  const txt = await r.text();
+  return txt ? JSON.parse(txt) : null;
+}
 
-let state = {
-  day: EMPTY_DAY(),
-  log: [],
-  messages: [],
-  aiHistory: [],
-  loading: false,
-  tab: 'chat',
-  editingBasal: false,
-  apiKey: '',
-};
+async function sbGetDay() {
+  try { const r = await sbReq('GET','daytrack_current?id=eq.1'); return r&&r[0]?r[0].data:null; } catch { return null; }
+}
+async function sbSaveDay(data) {
+  try { await sbReq('POST','daytrack_current',{id:1,data,updated_at:new Date().toISOString()}); } catch(e) { console.error(e); }
+}
+async function sbGetLog() {
+  try { const r = await sbReq('GET','daytrack_log?order=day_num.asc'); return r||[]; } catch { return []; }
+}
+async function sbAddLog(entry) {
+  try {
+    await sbReq('POST','daytrack_log',{
+      day_num:entry.dayNum, date:entry.date,
+      kcal_in:entry.kcalIn, kcal_out:entry.kcalOut,
+      basal:entry.basal, deficit:entry.deficit,
+      humor:entry.humor, score:entry.score,
+      workouts:entry.workouts, meals:entry.meals
+    });
+  } catch(e) { console.error(e); }
+}
+async function sbClearLog() {
+  try { await sbReq('DELETE','daytrack_log?day_num=gte.0'); } catch {}
+}
 
-const LS = {
-  DAY:   'dt_day',
-  LOG:   'dt_log',
-  MSGS:  'dt_msgs',
-  BASAL: 'dt_basal',
-  API:   'dt_api',
-  AUTH:  'dt_auth',
-};
+// ── STATE ─────────────────────────────────────────────────
+const EMPTY = () => ({active:false,dayNum:0,kcalIn:0,kcalOut:0,humor:null,meals:[],workouts:[],score:null,finalizado:false,date:null,basal:DEFAULT_BASAL});
 
-function lsGet(k) { try { return localStorage.getItem(k); } catch { return null; } }
-function lsSet(k,v) { try { localStorage.setItem(k, v); } catch {} }
-function lsDel(k) { try { localStorage.removeItem(k); } catch {} }
+let D = EMPTY(), LOG = [], MSGS = [], AI_HIST = [], loading = false, editingBasal = false, API_KEY = '', currentTab = 'chat';
 
-function saveDay()  { lsSet(LS.DAY,  JSON.stringify(state.day)); }
-function saveLog()  { lsSet(LS.LOG,  JSON.stringify(state.log)); }
-function saveMsgs() { lsSet(LS.MSGS, JSON.stringify(state.messages.slice(-80))); }
+function ls(k,v) { if(v===undefined) { try{return localStorage.getItem(k);}catch{return null;} } try{localStorage.setItem(k,v);}catch{} }
 
-// ── AUTH ─────────────────────────────────────────────────
+function sync(status, txt) {
+  const el = document.getElementById('sync-bar');
+  el.className = 'sync-bar '+status;
+  el.textContent = txt;
+}
+
+// ── AUTH ──────────────────────────────────────────────────
 function tryLogin() {
-  const val = document.getElementById('pin-input').value;
-  if (val === PASSWORD) {
-    lsSet(LS.AUTH, '1');
+  const v = document.getElementById('pin-input').value;
+  if (v === PASSWORD) {
+    ls('auth','1');
     document.getElementById('login-screen').style.display = 'none';
-    initApp();
+    boot();
   } else {
-    document.getElementById('login-err').textContent = 'Senha incorreta. Tente novamente.';
+    document.getElementById('login-err').textContent = 'Senha incorreta.';
     document.getElementById('pin-input').value = '';
   }
 }
+document.getElementById('pin-input').addEventListener('keydown', e => { if(e.key==='Enter') tryLogin(); });
 
-document.getElementById('pin-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') tryLogin();
-});
+// ── BOOT ──────────────────────────────────────────────────
+async function boot() {
+  API_KEY = ls('api_key') || '';
+  sync('syncing','☁️ Sincronizando com a nuvem...');
 
-// ── INIT ─────────────────────────────────────────────────
-function initApp() {
-  // Load persisted state
-  const savedDay  = lsGet(LS.DAY);
-  const savedLog  = lsGet(LS.LOG);
-  const savedMsgs = lsGet(LS.MSGS);
-  const savedBasal= lsGet(LS.BASAL);
-  const savedApi  = lsGet(LS.API);
-
-  if (savedBasal) DEFAULT_BASAL_VAL = parseInt(savedBasal);
-  if (savedApi)   state.apiKey = savedApi;
-
-  if (savedDay) {
-    state.day = JSON.parse(savedDay);
-    if (!state.day.basal) state.day.basal = parseInt(savedBasal||'2000');
-  }
-  if (savedLog)  state.log  = JSON.parse(savedLog);
-  if (savedMsgs) {
-    const m = JSON.parse(savedMsgs);
-    state.messages = m.length > 0 ? m : [welcomeMsg()];
-  } else {
-    state.messages = [welcomeMsg()];
+  try {
+    const [day, log] = await Promise.all([sbGetDay(), sbGetLog()]);
+    if (day) D = day;
+    if (log && log.length > 0) {
+      LOG = log.map(r => ({
+        dayNum:r.day_num, date:r.date,
+        kcalIn:r.kcal_in, kcalOut:r.kcal_out,
+        basal:r.basal, deficit:r.deficit,
+        humor:r.humor, score:r.score,
+        workouts:r.workouts||[], meals:r.meals||[]
+      }));
+    }
+    sync('ok','☁️ Dados sincronizados ✓');
+  } catch {
+    sync('err','⚠️ Sem conexão — dados locais carregados');
   }
 
+  const saved = ls('msgs');
+  MSGS = saved ? JSON.parse(saved) : [welcome()];
+
+  document.getElementById('loading-screen').style.display = 'none';
   document.getElementById('app').style.display = 'flex';
   renderAll();
 
-  // Check if API key needed
-  if (!state.apiKey || state.apiKey === 'YOUR_ANTHROPIC_API_KEY') {
-    promptApiKey();
-  }
+  if (!API_KEY || !API_KEY.startsWith('sk-')) askApiKey();
 }
 
-let DEFAULT_BASAL_VAL = DEFAULT_BASAL;
-
-function welcomeMsg() {
-  return { role:'bot', text:'Olá! 👋 Sou seu rastreador diário de saúde.\n\nSeu objetivo: **perder peso e ganhar massa magra** 💪\n\nDiga **"iniciar o dia"** para começar:\n• 🍽️ Me conta o que comeu\n• 💪 Seus treinos (tipo, kcal, bpm)\n• 😊 Nota de humor (0 a 10)\n• 🔥 "minha basal é 2000" para ajustar\n• 📊 "finalizar o dia" para score final' };
+function welcome() {
+  return {role:'bot',text:'Olá! 👋 Sou seu rastreador diário de saúde.\n\nSeu objetivo: **perder peso e ganhar massa magra** 💪\n\nDiga **"iniciar o dia"** para começar:\n• 🍽️ Me conta o que comeu\n• 💪 Seus treinos (tipo, kcal, bpm)\n• 😊 Nota de humor (0 a 10)\n• 🔥 "minha basal é 2000" para ajustar\n• 📊 "finalizar o dia" para score final'};
 }
 
-function promptApiKey() {
-  const key = prompt('Para usar o app, cole sua chave da API Anthropic (claude.ai/settings → API Keys):');
-  if (key && key.startsWith('sk-')) {
-    state.apiKey = key;
-    lsSet(LS.API, key);
-  } else if (key) {
-    alert('Chave inválida. Precisa começar com "sk-".');
-  }
+function askApiKey() {
+  const k = prompt('Cole sua chave da API Anthropic (console.anthropic.com → API Keys):');
+  if (k && k.startsWith('sk-')) { API_KEY = k; ls('api_key', k); }
 }
 
-// ── PARSE AI RESPONSE ────────────────────────────────────
+// ── PARSE AI ──────────────────────────────────────────────
 function parseAI(text) {
-  const day = state.day;
-  const m = (p) => text.match(p);
-  const kcalIn  = m(/\[KCAL_IN:\s*(\d+)\]/);
-  const refeicao= m(/\[REFEICAO:\s*([^\]]+)\]/);
-  const kcalOut = m(/\[KCAL_OUT:\s*(\d+)\]/);
-  const treino  = m(/\[TREINO:\s*([^\]]+)\]/);
-  const bpm     = m(/\[BPM:\s*(\d+)\]/);
-  const humor   = m(/\[HUMOR:\s*([\d.]+)\]/);
-  const score   = m(/\[SCORE:\s*([\d.]+)\]/);
-  const basal   = m(/\[BASAL:\s*(\d+)\]/);
-  const fin     = m(/\[FINALIZADO:\s*true\]/i);
+  const m = p => text.match(p);
+  const ki = m(/\[KCAL_IN:\s*(\d+)\]/), rf = m(/\[REFEICAO:\s*([^\]]+)\]/);
+  const ko = m(/\[KCAL_OUT:\s*(\d+)\]/), tr = m(/\[TREINO:\s*([^\]]+)\]/), bp = m(/\[BPM:\s*(\d+)\]/);
+  const hu = m(/\[HUMOR:\s*([\d.]+)\]/), sc = m(/\[SCORE:\s*([\d.]+)\]/);
+  const ba = m(/\[BASAL:\s*(\d+)\]/), fi = m(/\[FINALIZADO:\s*true\]/i);
 
-  if (kcalIn) {
-    const val = parseInt(kcalIn[1]);
-    day.kcalIn += val;
-    const name = refeicao ? refeicao[1].trim() : `Refeição ${day.meals.length+1}`;
-    day.meals.push({ name, kcal: val });
-  }
-  if (kcalOut) {
-    const val = parseInt(kcalOut[1]);
-    day.kcalOut += val;
-    day.workouts.push({ type: treino ? treino[1].trim() : 'Treino', kcal: val, bpm: bpm ? bpm[1] : null });
-  }
-  if (humor) day.humor = parseFloat(humor[1]);
-  if (score) day.score = parseFloat(score[1]);
-  if (basal) { day.basal = parseInt(basal[1]); lsSet(LS.BASAL, basal[1]); }
-  if (fin)   { day.finalizado = true; day.active = false; }
+  if (ki) { const v=parseInt(ki[1]); D.kcalIn+=v; D.meals.push({name:rf?rf[1].trim():`Refeição ${D.meals.length+1}`,kcal:v}); }
+  if (ko) { const v=parseInt(ko[1]); D.kcalOut+=v; D.workouts.push({type:tr?tr[1].trim():'Treino',kcal:v,bpm:bp?bp[1]:null}); }
+  if (hu) D.humor=parseFloat(hu[1]);
+  if (sc) D.score=parseFloat(sc[1]);
+  if (ba) D.basal=parseInt(ba[1]);
+  if (fi) { D.finalizado=true; D.active=false; }
 
-  return text
-    .replace(/\[KCAL_IN:\s*\d+\]/g,'').replace(/\[REFEICAO:\s*[^\]]+\]/g,'')
+  return text.replace(/\[KCAL_IN:\s*\d+\]/g,'').replace(/\[REFEICAO:\s*[^\]]+\]/g,'')
     .replace(/\[KCAL_OUT:\s*\d+\]/g,'').replace(/\[TREINO:\s*[^\]]+\]/g,'')
     .replace(/\[BPM:\s*\d+\]/g,'').replace(/\[HUMOR:\s*[\d.]+\]/g,'')
     .replace(/\[SCORE:\s*[\d.]+\]/g,'').replace(/\[FINALIZADO:\s*true\]/gi,'')
     .replace(/\[BASAL:\s*\d+\]/g,'').trim();
 }
 
-// ── SEND MESSAGE ─────────────────────────────────────────
+// ── SEND ──────────────────────────────────────────────────
 async function sendMessage(text) {
-  const msg = text || document.getElementById('msg-input').value.trim();
-  if (!msg || state.loading) return;
+  const msg = (text || document.getElementById('msg-input').value).trim();
+  if (!msg || loading) return;
   document.getElementById('msg-input').value = '';
   updateSendBtn();
 
   const lower = msg.toLowerCase();
-
   if (lower.includes('iniciar') && lower.includes('dia')) {
-    state.day = { ...EMPTY_DAY(), active:true, dayNum: state.day.dayNum+1, date: new Date().toLocaleDateString('pt-BR'), basal: state.day.basal };
-    state.aiHistory = [];
-    saveDay();
+    D = {...EMPTY(), active:true, dayNum:D.dayNum+1, date:new Date().toLocaleDateString('pt-BR'), basal:D.basal};
+    AI_HIST = [];
+    await sbSaveDay(D);
   }
+  const finalizing = lower.includes('finalizar') && lower.includes('dia');
 
-  const isFinalizing = lower.includes('finalizar') && lower.includes('dia');
+  MSGS.push({role:'user',text:msg});
+  loading = true;
+  renderMessages(); renderStatsBar();
 
-  state.messages.push({ role:'user', text: msg });
-  state.loading = true;
-  renderMessages();
-  renderStatsBar();
-
-  const realDef = state.day.basal + state.day.kcalOut - state.day.kcalIn;
-  const ctx = state.day.active
-    ? `[Dia ${state.day.dayNum} | ${state.day.date} | Basal: ${state.day.basal}kcal | Ingerido: ${state.day.kcalIn}kcal | Queimado: ${state.day.kcalOut}kcal | Déficit real: ${realDef}kcal | Humor: ${state.day.humor!=null?state.day.humor+'/10':'—'} | Refeições: ${state.day.meals.map(m=>m.name).join(', ')||'nenhuma'} | Treinos: ${state.day.workouts.map(w=>w.type).join(', ')||'nenhum'} | Score: ${state.day.score??'—'}]\n\n${msg}`
+  const def = D.basal + D.kcalOut - D.kcalIn;
+  const ctx = D.active
+    ? `[Dia ${D.dayNum} | ${D.date} | Basal:${D.basal}kcal | Ingerido:${D.kcalIn}kcal | Queimado:${D.kcalOut}kcal | Déficit real:${def}kcal | Humor:${D.humor!=null?D.humor+'/10':'—'} | Refeições:${D.meals.map(m=>m.name).join(',')||'nenhuma'} | Treinos:${D.workouts.map(w=>w.type).join(',')||'nenhum'} | Score:${D.score??'—'}]\n\n${msg}`
     : msg;
 
-  state.aiHistory.push({ role:'user', content: ctx });
+  AI_HIST.push({role:'user',content:ctx});
 
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json', 'x-api-key': state.apiKey, 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1200, system:SYSTEM_PROMPT, messages:state.aiHistory })
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':API_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1200,system:SYSTEM_PROMPT,messages:AI_HIST})
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
     const raw = data.content.map(c=>c.text||'').join('');
     const clean = parseAI(raw);
-    state.aiHistory.push({ role:'assistant', content: raw });
+    AI_HIST.push({role:'assistant',content:raw});
 
-    if (isFinalizing || state.day.finalizado) {
-      const realD = state.day.basal + state.day.kcalOut - state.day.kcalIn;
-      state.log.push({
-        dayNum: state.day.dayNum, date: state.day.date,
-        kcalIn: state.day.kcalIn, kcalOut: state.day.kcalOut,
-        basal: state.day.basal, deficit: realD,
-        humor: state.day.humor, score: state.day.score,
-        workouts: [...state.day.workouts], meals: [...state.day.meals]
-      });
-      saveLog();
+    sync('syncing','☁️ Salvando na nuvem...');
+    await sbSaveDay(D);
+
+    if (finalizing || D.finalizado) {
+      const realDef = D.basal + D.kcalOut - D.kcalIn;
+      const entry = {dayNum:D.dayNum,date:D.date,kcalIn:D.kcalIn,kcalOut:D.kcalOut,basal:D.basal,deficit:realDef,humor:D.humor,score:D.score,workouts:[...D.workouts],meals:[...D.meals]};
+      await sbAddLog(entry);
+      LOG.push(entry);
     }
 
-    state.messages.push({ role:'bot', text: clean });
-    saveDay();
-    saveMsgs();
+    sync('ok','☁️ Salvo na nuvem ✓');
+    MSGS.push({role:'bot',text:clean});
+    ls('msgs', JSON.stringify(MSGS.slice(-80)));
 
   } catch(e) {
-    state.messages.push({ role:'bot', text: `Erro: ${e.message}. Verifique sua chave de API.` });
+    sync('err','⚠️ Erro ao salvar');
+    MSGS.push({role:'bot',text:`Erro: ${e.message}`});
   }
 
-  state.loading = false;
+  loading = false;
   renderAll();
 }
 
 function quickSend(t) { sendMessage(t); }
 
-// ── RENDER ───────────────────────────────────────────────
-const humorLabels = ['','Péssimo 😞','Muito ruim 😣','Ruim 😕','Abaixo da média 😐','Mediano 😶','Ok 🙂','Bom 😊','Muito bom 😄','Ótimo 🤩','Perfeito! 🔥'];
+// ── RENDER ────────────────────────────────────────────────
+const humorLbls = ['','Péssimo 😞','Muito ruim 😣','Ruim 😕','Abaixo da média 😐','Mediano 😶','Ok 🙂','Bom 😊','Muito bom 😄','Ótimo 🤩','Perfeito! 🔥'];
+function sc(s) { if(s==null)return'#555'; if(s>=8)return'#c8ff3e'; if(s>=6)return'#3ec8ff'; if(s>=4)return'#ffb347'; return'#ff6b35'; }
+function sl(s) { if(s==null)return'—'; if(s>=9)return'Dia Perfeito 🔥'; if(s>=8)return'Excelente 💪'; if(s>=7)return'Muito Bom ✅'; if(s>=6)return'Bom 👍'; if(s>=5)return'Regular 😐'; if(s>=4)return'Abaixo da média ⚠️'; return'Precisa melhorar ❌'; }
+function esc(t) { return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmt(t) { return esc(t).replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>'); }
 
-function scoreColor(s) {
-  if (s==null) return '#555';
-  if (s>=8) return '#c8ff3e';
-  if (s>=6) return '#3ec8ff';
-  if (s>=4) return '#ffb347';
-  return '#ff6b35';
-}
-function scoreLabel(s) {
-  if (s==null) return '—';
-  if (s>=9) return 'Dia Perfeito 🔥';
-  if (s>=8) return 'Excelente 💪';
-  if (s>=7) return 'Muito Bom ✅';
-  if (s>=6) return 'Bom 👍';
-  if (s>=5) return 'Regular 😐';
-  if (s>=4) return 'Abaixo da média ⚠️';
-  return 'Precisa melhorar ❌';
-}
+function renderAll() { renderStatsBar(); renderMessages(); renderData(); renderHistory(); renderBadge(); }
 
-function renderAll() {
-  renderStatsBar();
-  renderMessages();
-  renderData();
-  renderHistory();
-  renderDayBadge();
-}
-
-function renderDayBadge() {
+function renderBadge() {
   const b = document.getElementById('day-badge');
-  const d = state.day;
-  b.className = 'day-badge ' + (d.active ? 'active' : 'inactive');
-  b.textContent = d.active ? `● Dia ${d.dayNum}` : d.finalizado ? `✓ Dia ${d.dayNum} finalizado` : '● Inativo';
+  b.className = 'day-badge '+(D.active?'active':'inactive');
+  b.textContent = D.active?`● Dia ${D.dayNum}`:D.finalizado?`✓ Dia ${D.dayNum} finalizado`:'● Inativo';
 }
 
 function renderStatsBar() {
-  const d = state.day;
-  const realDef = d.basal + d.kcalOut - d.kcalIn;
+  const def = D.basal + D.kcalOut - D.kcalIn;
   const items = [
-    { label:'Basal', val: d.basal, unit:'kcal', color:'#a78bfa', editable:true },
-    { label:'Ingerido', val: d.kcalIn, unit:'kcal', color:'#c8ff3e' },
-    { label:'Queimado', val: d.kcalOut, unit:'kcal', color:'#ff6b35' },
-    { label: realDef>=0?'Déficit Real':'Superávit', val: Math.abs(realDef), unit:'kcal', color: realDef>=0?'#c8ff3e':'#ff6b35' },
-    { label:'Humor', val: d.humor!=null?d.humor:'—', unit:'/10', color:'#3ec8ff' },
-    { label: d.finalizado?'Score Final ✓':'Score Parcial', val: d.score!=null?d.score:'—', unit:'/10', color: scoreColor(d.score) },
+    {label:'Basal',val:D.basal,unit:'kcal',color:'#a78bfa',editable:true},
+    {label:'Ingerido',val:D.kcalIn,unit:'kcal',color:'#c8ff3e'},
+    {label:'Queimado',val:D.kcalOut,unit:'kcal',color:'#ff6b35'},
+    {label:def>=0?'Déficit':'Superávit',val:Math.abs(def),unit:'kcal',color:def>=0?'#c8ff3e':'#ff6b35'},
+    {label:'Humor',val:D.humor!=null?D.humor:'—',unit:'/10',color:'#3ec8ff'},
+    {label:D.finalizado?'Score Final ✓':'Score Parcial',val:D.score!=null?D.score:'—',unit:'/10',color:sc(D.score)},
   ];
-  document.getElementById('stats-bar').innerHTML = items.map((s,i) => `
+  document.getElementById('stats-bar').innerHTML = items.map((s,i)=>`
     <div class="stat-cell">
-      <div class="stat-label">
-        ${s.label}
-        ${s.editable ? `<span class="stat-edit-btn" onclick="startEditBasal()" title="Editar">✎</span>` : ''}
-      </div>
-      ${s.editable && state.editingBasal
-        ? `<input class="stat-edit-input" id="basal-inp" type="number" value="${d.basal}" onblur="commitBasal(this.value)" onkeydown="if(event.key==='Enter')commitBasal(this.value);if(event.key==='Escape')cancelEditBasal();" style="color:${s.color}">`
-        : `<div class="stat-val" style="color:${s.color}"${s.editable?' onclick="startEditBasal()" style="cursor:pointer;color:'+s.color+'"':''}>${s.val}</div>`
-      }
+      <div class="stat-label">${s.label}${s.editable?`<span class="stat-edit-btn" onclick="startEditBasal()">✎</span>`:''}</div>
+      ${s.editable&&editingBasal
+        ?`<input class="stat-edit-input" id="basal-inp" type="number" value="${D.basal}" onblur="commitBasal(this.value)" onkeydown="if(event.key==='Enter')commitBasal(this.value);if(event.key==='Escape')cancelEditBasal();" style="color:${s.color}">`
+        :`<div class="stat-val" style="color:${s.color}${s.editable?';cursor:pointer':''}" ${s.editable?'onclick="startEditBasal()"':''}>${s.val}</div>`}
       <div class="stat-unit">${s.unit}</div>
-    </div>
-  `).join('');
-  if (state.editingBasal) {
-    const inp = document.getElementById('basal-inp');
-    if (inp) { inp.focus(); inp.select(); }
-  }
+    </div>`).join('');
+  if (editingBasal) { const i=document.getElementById('basal-inp'); if(i){i.focus();i.select();} }
 }
 
-function startEditBasal() { state.editingBasal = true; renderStatsBar(); }
-function cancelEditBasal() { state.editingBasal = false; renderStatsBar(); }
-function commitBasal(val) {
-  const num = parseInt(val);
-  if (!isNaN(num) && num>=500 && num<=6000) {
-    state.day.basal = num;
-    lsSet(LS.BASAL, String(num));
-    saveDay();
-  }
-  state.editingBasal = false;
-  renderStatsBar();
-}
-
-function escapeHtml(t) {
-  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-function formatText(t) {
-  return escapeHtml(t)
-    .replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>')
-    .replace(/\n/g,'<br>');
+function startEditBasal() { editingBasal=true; renderStatsBar(); }
+function cancelEditBasal() { editingBasal=false; renderStatsBar(); }
+async function commitBasal(v) {
+  const n=parseInt(v);
+  if (!isNaN(n)&&n>=500&&n<=6000) { D.basal=n; await sbSaveDay(D); }
+  editingBasal=false; renderStatsBar();
 }
 
 function renderMessages() {
-  const container = document.getElementById('messages');
-  let html = state.messages.map(m => `
+  let html = MSGS.map(m=>`
     <div class="msg ${m.role}">
       <div class="msg-av">${m.role==='user'?'EU':'AI'}</div>
-      <div class="msg-bubble">${formatText(m.text)}</div>
-    </div>
-  `).join('');
-
-  if (state.loading) {
-    html += `
-      <div class="msg bot">
-        <div class="msg-av">AI</div>
-        <div class="msg-bubble"><div class="typing"><span></span><span></span><span></span></div></div>
-      </div>`;
-  }
-  container.innerHTML = html;
-  container.scrollTop = container.scrollHeight;
+      <div class="msg-bubble">${fmt(m.text)}</div>
+    </div>`).join('');
+  if (loading) html+=`<div class="msg bot"><div class="msg-av">AI</div><div class="msg-bubble"><div class="typing"><span></span><span></span><span></span></div></div></div>`;
+  const c = document.getElementById('messages');
+  c.innerHTML = html;
+  c.scrollTop = c.scrollHeight;
 }
 
 function renderData() {
-  const d = state.day;
-  const realDef = d.basal + d.kcalOut - d.kcalIn;
-  let html = '';
+  const def = D.basal + D.kcalOut - D.kcalIn;
+  let h = '';
 
-  // Meals
-  html += `<div class="section"><div class="section-title">🍽️ Refeições</div>`;
-  if (d.meals.length===0) html += `<div class="empty">Nenhuma refeição registrada ainda</div>`;
-  else {
-    d.meals.forEach(m => html += `<div class="row"><span class="row-left">${escapeHtml(m.name)}</span><span class="row-right" style="color:#c8ff3e">+${m.kcal} kcal</span></div>`);
-    html += `<div class="total-row"><span style="color:#888">Total</span><span style="color:#c8ff3e">${d.kcalIn} kcal</span></div>`;
-  }
-  html += `</div>`;
+  h+=`<div class="section"><div class="section-title">🍽️ Refeições</div>`;
+  if (!D.meals.length) h+=`<div class="empty">Nenhuma refeição registrada ainda</div>`;
+  else { D.meals.forEach(m=>h+=`<div class="row"><span class="row-left">${esc(m.name)}</span><span class="row-right" style="color:#c8ff3e">+${m.kcal} kcal</span></div>`); h+=`<div class="total-row"><span style="color:#888">Total</span><span style="color:#c8ff3e">${D.kcalIn} kcal</span></div>`; }
+  h+=`</div>`;
 
-  // Workouts
-  html += `<div class="section"><div class="section-title">💪 Treinos</div>`;
-  if (d.workouts.length===0) html += `<div class="empty">Nenhum treino registrado ainda</div>`;
-  else d.workouts.forEach(w => html += `
-    <div class="workout-card">
-      <div class="workout-type">${escapeHtml(w.type)}</div>
-      <div class="workout-meta"><span>🔥 ${w.kcal} kcal</span>${w.bpm?`<span>❤️ ${w.bpm} bpm</span>`:''}</div>
-    </div>`);
-  html += `</div>`;
+  h+=`<div class="section"><div class="section-title">💪 Treinos</div>`;
+  if (!D.workouts.length) h+=`<div class="empty">Nenhum treino registrado ainda</div>`;
+  else D.workouts.forEach(w=>h+=`<div class="workout-card"><div class="workout-type">${esc(w.type)}</div><div class="workout-meta"><span>🔥 ${w.kcal} kcal</span>${w.bpm?`<span>❤️ ${w.bpm} bpm</span>`:''}</div></div>`);
+  h+=`</div>`;
 
-  // Humor
-  html += `<div class="section"><div class="section-title">😊 Humor</div>`;
-  if (d.humor==null) html += `<div class="empty">Nota de humor não registrada</div>`;
-  else html += `
-    <div class="humor-center">
-      <div class="humor-big" style="color:${d.humor>=7?'#c8ff3e':d.humor>=4?'#3ec8ff':'#ff6b35'}">${d.humor}</div>
-      <div class="humor-sub">${humorLabels[Math.round(d.humor)]||''}</div>
-      <div class="humor-bar-wrap"><div class="humor-bar-fill" style="width:${d.humor*10}%"></div></div>
-    </div>`;
-  html += `</div>`;
+  h+=`<div class="section"><div class="section-title">😊 Humor</div>`;
+  if (D.humor==null) h+=`<div class="empty">Nota de humor não registrada</div>`;
+  else h+=`<div class="humor-center"><div class="humor-big" style="color:${D.humor>=7?'#c8ff3e':D.humor>=4?'#3ec8ff':'#ff6b35'}">${D.humor}</div><div class="humor-sub">${humorLbls[Math.round(D.humor)]||''}</div><div class="bar-wrap" style="margin-top:10px"><div class="bar-fill" style="width:${D.humor*10}%;background:linear-gradient(90deg,#ff6b35,#c8ff3e)"></div></div></div>`;
+  h+=`</div>`;
 
-  // Balance
-  html += `<div class="section"><div class="section-title">⚖️ Balanço Calórico Real</div>
-    <div class="row"><span class="row-left">Basal (repouso)</span><span class="row-right" style="color:#a78bfa">${d.basal} kcal</span></div>
-    <div class="row"><span class="row-left">Queimado no treino</span><span class="row-right" style="color:#ff6b35">+${d.kcalOut} kcal</span></div>
-    <div class="row"><span class="row-left">Gasto total</span><span class="row-right">${d.basal+d.kcalOut} kcal</span></div>
-    <div class="row"><span class="row-left">Ingerido</span><span class="row-right" style="color:#c8ff3e">${d.kcalIn} kcal</span></div>
-    <div class="total-row"><span style="color:#888">${realDef>=0?'Déficit real':'Superávit'}</span><span style="color:${realDef>=0?'#c8ff3e':'#ff6b35'}">${Math.abs(realDef)} kcal</span></div>
+  h+=`<div class="section"><div class="section-title">⚖️ Balanço Calórico Real</div>
+    <div class="row"><span class="row-left">Basal (repouso)</span><span class="row-right" style="color:#a78bfa">${D.basal} kcal</span></div>
+    <div class="row"><span class="row-left">Queimado no treino</span><span class="row-right" style="color:#ff6b35">+${D.kcalOut} kcal</span></div>
+    <div class="row"><span class="row-left">Gasto total</span><span class="row-right">${D.basal+D.kcalOut} kcal</span></div>
+    <div class="row"><span class="row-left">Ingerido</span><span class="row-right" style="color:#c8ff3e">${D.kcalIn} kcal</span></div>
+    <div class="total-row"><span style="color:#888">${def>=0?'Déficit real':'Superávit'}</span><span style="color:${def>=0?'#c8ff3e':'#ff6b35'}">${Math.abs(def)} kcal</span></div>
   </div>`;
 
-  // Score
-  if (d.score!=null) {
-    const sc = scoreColor(d.score);
-    html += `<div class="section"><div class="section-title">${d.finalizado?'⭐ Score Final':'⭐ Score Parcial (em andamento)'}</div>
+  if (D.score!=null) {
+    const c=sc(D.score);
+    h+=`<div class="section"><div class="section-title">${D.finalizado?'⭐ Score Final':'⭐ Score Parcial (em andamento)'}</div>
       <div class="score-display">
-        <div class="score-big" style="color:${sc}">${d.score}</div>
-        <div class="score-lbl" style="color:${sc}">${scoreLabel(d.score)}</div>
-        ${!d.finalizado?'<div class="score-hint" style="margin-top:4px;color:#555">atualizado a cada registro</div>':''}
-        <div class="score-bar-wrap"><div class="score-bar-fill" style="width:${d.score*10}%;background:linear-gradient(90deg,#ff6b35,${sc})"></div></div>
-        <div class="score-hint">objetivo: perder peso + ganhar massa magra</div>
+        <div class="score-big" style="color:${c}">${D.score}</div>
+        <div style="font-size:14px;font-weight:700;color:${c};margin-top:6px">${sl(D.score)}</div>
+        ${!D.finalizado?'<div class="hint" style="margin-top:4px">atualizado a cada registro</div>':''}
+        <div class="bar-wrap"><div class="bar-fill" style="width:${D.score*10}%;background:linear-gradient(90deg,#ff6b35,${c})"></div></div>
+        <div class="hint">objetivo: perder peso + ganhar massa magra</div>
       </div>
     </div>`;
   }
 
-  document.getElementById('data-content').innerHTML = html;
+  document.getElementById('data-content').innerHTML = h;
 }
 
 function renderHistory() {
-  const log = state.log;
-  let html = '';
-
-  if (log.length===0) {
-    html = `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-txt">Nenhum dia finalizado ainda.</div><div class="empty-sub">Dias finalizados aparecem aqui salvos permanentemente.</div></div>`;
+  let h = '';
+  if (!LOG.length) {
+    h=`<div class="empty-state"><div style="font-size:40px;margin-bottom:12px">📋</div><div style="color:var(--dim);font-size:14px">Nenhum dia finalizado ainda.</div><div style="color:#333;font-size:11px;margin-top:6px">Dias finalizados ficam salvos na nuvem permanentemente.</div></div>`;
   } else {
-    const avgScore = log.length>0 ? (log.reduce((s,d)=>s+(d.score||0),0)/log.length).toFixed(1) : null;
-    html += `<div class="summary-grid">
-      ${[
-        {l:'Dias',v:log.length,c:'#3ec8ff'},
-        {l:'Score médio',v:avgScore?`${avgScore}/10`:'—',c:scoreColor(parseFloat(avgScore))},
-        {l:'Treinos',v:log.reduce((s,d)=>s+d.workouts.length,0),c:'#ff6b35'}
-      ].map(c=>`<div class="summary-card"><div class="summary-label">${c.l}</div><div class="summary-val" style="color:${c.c}">${c.v}</div></div>`).join('')}
-    </div>`;
+    const avg = (LOG.reduce((s,d)=>s+(d.score||0),0)/LOG.length).toFixed(1);
+    h+=`<div class="sum-grid">${[
+      {l:'Dias',v:LOG.length,c:'#3ec8ff'},
+      {l:'Score médio',v:`${avg}/10`,c:sc(parseFloat(avg))},
+      {l:'Treinos',v:LOG.reduce((s,d)=>s+d.workouts.length,0),c:'#ff6b35'}
+    ].map(c=>`<div class="sum-card"><div class="sum-label">${c.l}</div><div class="sum-val" style="color:${c.c}">${c.v}</div></div>`).join('')}</div>`;
 
-    [...log].reverse().forEach(d => {
-      const sc = scoreColor(d.score);
-      html += `<div class="day-card">
-        <div class="day-card-header">
-          <div><div class="day-card-num">Dia ${d.dayNum}</div><div class="day-card-date">${d.date}</div></div>
-          <div><div class="day-card-score" style="color:${sc}">${d.score??'—'}</div><div class="day-card-slbl" style="color:${sc}">${scoreLabel(d.score)}</div></div>
+    [...LOG].reverse().forEach(d=>{
+      const c=sc(d.score);
+      h+=`<div class="day-card">
+        <div class="day-header">
+          <div><div class="day-num">Dia ${d.dayNum}</div><div class="day-date">${d.date}</div></div>
+          <div><div class="day-score-big" style="color:${c}">${d.score??'—'}</div><div class="day-slbl" style="color:${c}">${sl(d.score)}</div></div>
         </div>
-        <div class="day-stats-grid">
-          ${[
-            {l:'Ingerido',v:d.kcalIn,u:'kcal',c:'#c8ff3e'},
-            {l:'Queimado',v:d.kcalOut,u:'kcal',c:'#ff6b35'},
-            {l:d.deficit>=0?'Déficit':'Superáv.',v:Math.abs(d.deficit),u:'kcal',c:d.deficit>=0?'#c8ff3e':'#ff6b35'},
-            {l:'Humor',v:d.humor!=null?d.humor:'—',u:'/10',c:'#3ec8ff'}
-          ].map(s=>`<div class="day-stat"><div class="day-stat-l">${s.l}</div><div class="day-stat-v" style="color:${s.c}">${s.v}</div><div class="day-stat-u">${s.u}</div></div>`).join('')}
-        </div>
-        ${d.workouts.length>0?`<div class="day-workouts">💪 ${d.workouts.map(w=>escapeHtml(w.type)).join(' · ')}</div>`:''}
-        <div class="day-progress"><div class="day-progress-fill" style="width:${(d.score||0)*10}%;background:linear-gradient(90deg,#ff6b35,${sc})"></div></div>
+        <div class="day-grid">${[
+          {l:'Ingerido',v:d.kcalIn,u:'kcal',c:'#c8ff3e'},
+          {l:'Queimado',v:d.kcalOut,u:'kcal',c:'#ff6b35'},
+          {l:d.deficit>=0?'Déficit':'Superáv.',v:Math.abs(d.deficit),u:'kcal',c:d.deficit>=0?'#c8ff3e':'#ff6b35'},
+          {l:'Humor',v:d.humor!=null?d.humor:'—',u:'/10',c:'#3ec8ff'}
+        ].map(s=>`<div class="day-stat"><div class="day-stat-l">${s.l}</div><div class="day-stat-v" style="color:${s.c}">${s.v}</div><div class="day-stat-u">${s.u}</div></div>`).join('')}</div>
+        ${d.workouts.length?`<div class="day-wkt">💪 ${d.workouts.map(w=>esc(w.type)).join(' · ')}</div>`:''}
+        <div class="day-prog"><div class="day-prog-fill" style="width:${(d.score||0)*10}%;background:linear-gradient(90deg,#ff6b35,${c})"></div></div>
       </div>`;
     });
 
-    html += `<button class="clear-btn" onclick="clearHistory()">🗑️ Limpar histórico</button>`;
+    h+=`<button class="clear-btn" onclick="clearHistory()">🗑️ Limpar histórico</button>`;
   }
-
-  document.getElementById('history-content').innerHTML = html;
+  document.getElementById('history-content').innerHTML = h;
 }
 
-function clearHistory() {
-  if (!confirm('Apagar todo o histórico?')) return;
-  state.log = [];
-  lsDel(LS.LOG);
+async function clearHistory() {
+  if (!confirm('Apagar todo o histórico da nuvem?')) return;
+  await sbClearLog();
+  LOG = [];
   renderHistory();
 }
 
-// ── TABS ─────────────────────────────────────────────────
+// ── TABS ──────────────────────────────────────────────────
 function switchTab(tab) {
-  state.tab = tab;
-  ['chat','dados','historico'].forEach(t => {
-    document.getElementById(`panel-${t}`).style.display = t===tab?'flex':'none';
-    const btn = document.getElementById(`tab-${t}`);
-    btn.className = 'tab-btn ' + (t===tab?'active':'inactive');
+  currentTab = tab;
+  ['chat','dados','historico'].forEach(t=>{
+    const p=document.getElementById(`panel-${t}`);
+    p.style.display = t===tab?(t==='chat'?'flex':'flex'):'none';
+    p.style.flexDirection = 'column';
+    document.getElementById(`tab-${t}`).className='tab-btn '+(t===tab?'active':'inactive');
   });
-  if (tab==='dados') renderData();
-  if (tab==='historico') renderHistory();
+  if(tab==='dados') renderData();
+  if(tab==='historico') renderHistory();
 }
 
-// ── INPUT ────────────────────────────────────────────────
-const msgInput = document.getElementById('msg-input');
-const sendBtn  = document.getElementById('send-btn');
-
+// ── INPUT ─────────────────────────────────────────────────
+const inp = document.getElementById('msg-input');
+const sbtn = document.getElementById('send-btn');
 function updateSendBtn() {
-  const has = msgInput.value.trim().length > 0 && !state.loading;
-  sendBtn.className = 'send-btn ' + (has ? 'ready' : 'disabled');
+  const ok = inp.value.trim().length>0 && !loading;
+  sbtn.className='send-btn '+(ok?'ready':'disabled');
 }
+inp.addEventListener('input',()=>{ inp.style.height='42px'; inp.style.height=Math.min(inp.scrollHeight,100)+'px'; updateSendBtn(); });
+inp.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();} });
 
-msgInput.addEventListener('input', () => {
-  msgInput.style.height = '42px';
-  msgInput.style.height = Math.min(msgInput.scrollHeight, 100) + 'px';
-  updateSendBtn();
-});
-msgInput.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-});
-
-// ── BOOT ─────────────────────────────────────────────────
-document.getElementById('loading-screen').style.display = 'none';
-
-if (lsGet(LS.AUTH) === '1') {
-  initApp();
-} else {
-  document.getElementById('login-screen').style.display = 'flex';
-}
+// ── START ─────────────────────────────────────────────────
+if (ls('auth')==='1') { boot(); }
+else { document.getElementById('loading-screen').style.display='none'; document.getElementById('login-screen').style.display='flex'; }
 </script>
 </body>
 </html>
