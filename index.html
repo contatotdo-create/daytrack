@@ -22,23 +22,21 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .loading-logo{font-size:32px;font-weight:900;letter-spacing:4px;color:var(--accent);}
 .loading-txt{font-size:13px;color:var(--dim);}
 
-#login-screen{position:fixed;inset:0;background:var(--bg);display:none;align-items:center;justify-content:center;z-index:998;flex-direction:column;gap:24px;padding:32px;}
+#login-screen{position:fixed;inset:0;background:var(--bg);display:none;align-items:center;justify-content:center;z-index:998;flex-direction:column;gap:20px;padding:32px;}
 .login-logo{font-size:36px;font-weight:900;letter-spacing:4px;color:var(--accent);}
 .login-sub{font-size:13px;color:var(--dim);text-align:center;}
-.login-box{width:100%;max-width:320px;display:flex;flex-direction:column;gap:12px;}
-.login-input{background:var(--surface2);border:1px solid var(--border2);border-radius:12px;padding:14px 16px;color:var(--text);font-size:16px;outline:none;font-family:inherit;letter-spacing:4px;text-align:center;transition:border-color .2s;}
+.login-box{width:100%;max-width:320px;display:flex;flex-direction:column;gap:10px;}
+.login-label{font-size:11px;color:var(--dim);letter-spacing:1px;text-transform:uppercase;}
+.login-input{background:var(--surface2);border:1px solid var(--border2);border-radius:12px;padding:14px 16px;color:var(--text);font-size:15px;outline:none;font-family:inherit;transition:border-color .2s;}
+.login-input.pin{letter-spacing:4px;text-align:center;font-size:16px;}
 .login-input:focus{border-color:var(--accent);}
-.login-btn{background:var(--accent);color:#000;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;}
+.login-btn{background:var(--accent);color:#000;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:4px;}
 .login-err{color:var(--orange);font-size:12px;text-align:center;min-height:16px;}
+.login-hint{font-size:11px;color:var(--dim);text-align:center;line-height:1.5;}
 
 #app{display:none;flex-direction:column;height:100vh;height:100dvh;overflow:hidden;}
 
-/* ── HEADER ── */
-.header{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:10px 16px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0;
-  padding-top:max(10px,env(safe-area-inset-top));gap:12px;
-}
+.header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0;padding-top:max(10px,env(safe-area-inset-top));gap:12px;}
 .header-left{display:flex;flex-direction:column;gap:1px;flex-shrink:0;}
 .logo{font-size:20px;font-weight:900;letter-spacing:2px;color:var(--accent);line-height:1;}
 .header-date{font-size:11px;color:var(--dim);font-weight:500;}
@@ -46,22 +44,14 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .header-status.active{color:var(--accent);}
 .header-status.inactive{color:var(--dim);}
 
-/* ── TABS ── */
 .tabs{display:grid;grid-template-columns:1fr 1fr;gap:3px;}
 .tab-btn{padding:5px 8px;border-radius:7px;border:none;cursor:pointer;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:0.6px;font-family:inherit;white-space:nowrap;text-align:center;}
 .tab-btn.active{background:var(--accent);color:#000;}
 .tab-btn.inactive{background:var(--surface2);color:var(--dim);}
 
-/* ── STATS BAR ── */
-.stats-bar{
-  display:flex;border-bottom:1px solid var(--border);flex-shrink:0;
-  overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;
-}
+.stats-bar{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
 .stats-bar::-webkit-scrollbar{display:none;}
-.stat-cell{
-  flex:0 0 auto;width:20vw;min-width:70px;max-width:110px;
-  padding:10px 8px;border-right:1px solid var(--border);
-}
+.stat-cell{flex:0 0 auto;width:20vw;min-width:70px;max-width:110px;padding:10px 8px;border-right:1px solid var(--border);}
 .stat-cell:last-child{border-right:none;}
 .stat-label{font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);margin-bottom:4px;display:flex;align-items:center;gap:3px;white-space:nowrap;}
 .stat-edit-btn{cursor:pointer;color:var(--purple);font-size:10px;line-height:1;}
@@ -69,10 +59,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .stat-unit{font-size:9px;color:#555;margin-top:2px;}
 .stat-edit-input{width:100%;background:transparent;border:none;border-bottom:1px solid var(--purple);color:var(--purple);font-size:24px;font-weight:900;outline:none;font-family:inherit;}
 
-/* ── MAIN ── */
 .main-content{flex:1;overflow:hidden;display:flex;flex-direction:column;}
-
-/* ── CHAT ── */
 .messages{flex:1;overflow-y:auto;padding:14px 14px 0;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:var(--border2) transparent;}
 .msg{display:flex;gap:8px;max-width:88%;animation:fadeUp .25s ease;}
 .msg.user{align-self:flex-end;flex-direction:row-reverse;}
@@ -98,7 +85,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .send-btn.ready{background:var(--accent);color:#000;}
 .send-btn.disabled{background:var(--border);color:#444;cursor:not-allowed;}
 
-/* ── SCROLL PANELS ── */
 .scroll-panel{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px;scrollbar-width:thin;}
 .section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;}
 .section-title{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:10px;}
@@ -117,7 +103,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .humor-big{font-size:52px;font-weight:900;line-height:1;}
 .humor-sub{font-size:12px;color:var(--muted);margin-top:4px;}
 
-/* ── HISTORY ── */
 .sum-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 .sum-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;}
 .sum-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:6px;}
@@ -135,7 +120,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .clear-btn{padding:8px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:#444;font-size:11px;cursor:pointer;font-family:inherit;}
 .empty-state{text-align:center;padding:40px 20px;}
 
-/* ── ANALYTICS ── */
 .chart-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;}
 .chart-title{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);margin-bottom:16px;}
 .chart-outer{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
@@ -149,7 +133,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);}
 .legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
 
-/* ── SYNC ── */
 .sync-bar{font-size:10px;text-align:center;padding:4px;background:var(--surface);border-top:1px solid var(--border);flex-shrink:0;}
 .sync-bar.syncing{color:var(--blue);}
 .sync-bar.ok{color:var(--accent);}
@@ -165,14 +148,20 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 
 <div id="loading-screen">
   <div class="loading-logo">DAYTRACK</div>
-  <div class="loading-txt">Carregando seus dados...</div>
+  <div class="loading-txt">Carregando...</div>
 </div>
 
 <div id="login-screen">
   <div class="login-logo">DAYTRACK</div>
   <div class="login-sub">Seu rastreador pessoal de saúde 💪</div>
   <div class="login-box">
-    <input class="login-input" type="password" id="pin-input" placeholder="••••••" maxlength="20">
+    <div class="login-label">Senha</div>
+    <input class="login-input pin" type="password" id="pin-input" placeholder="••••••" maxlength="20">
+    <div id="api-key-section" style="display:none;flex-direction:column;gap:8px;">
+      <div class="login-label" style="margin-top:8px;">Chave Gemini API</div>
+      <input class="login-input" type="password" id="api-key-input" placeholder="AIzaSy...">
+      <div class="login-hint">Acesse aistudio.google.com → Get API Key<br>Fica salva só no seu dispositivo 🔒</div>
+    </div>
     <button class="login-btn" onclick="tryLogin()">Entrar</button>
     <div class="login-err" id="login-err"></div>
   </div>
@@ -220,8 +209,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 
 <script>
 const PASSWORD      = "160501";
-const GEMINI_KEY    = "AIzaSyA6F5cr0ve00iuUBl-vyKrFXdlEs0idNuM";
-const GEMINI_URL    = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`;
 const SB_URL        = "https://ndgjdukylfngketshrep.supabase.co";
 const SB_KEY        = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5kZ2pkdWt5bGZuZ2tldHNocmVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI0MjI1OTMsImV4cCI6MjA1Nzk5ODU5M30.L1Is3fGSB_bQfNzUGEEMVlBnGnKYJqBMqGPt9hTQOIU";
 const DEFAULT_BASAL = 2000;
@@ -263,21 +250,45 @@ async function sbClearLog(){try{await sbReq('DELETE','daytrack_log?day_num=gte.0
 
 // ── STATE ─────────────────────────────────────────────────
 const EMPTY=()=>({active:false,dayNum:0,kcalIn:0,kcalOut:0,humor:null,meals:[],workouts:[],finalizado:false,date:null,basal:DEFAULT_BASAL});
-let D=EMPTY(),LOG=[],MSGS=[],AI_HIST=[],loading=false,editingBasal=false;
+let D=EMPTY(),LOG=[],MSGS=[],AI_HIST=[],loading=false,editingBasal=false,GEMINI_KEY='';
 
 function ls(k,v){if(v===undefined){try{return localStorage.getItem(k);}catch{return null;}}try{localStorage.setItem(k,v);}catch{}}
 function sync(s,t){const el=document.getElementById('sync-bar');el.className='sync-bar '+s;el.textContent=t;}
 
 // ── AUTH ──────────────────────────────────────────────────
 function tryLogin(){
-  const v=document.getElementById('pin-input').value;
-  if(v===PASSWORD){ls('auth','1');document.getElementById('login-screen').style.display='none';boot();}
-  else{document.getElementById('login-err').textContent='Senha incorreta.';document.getElementById('pin-input').value='';}
+  const pin=document.getElementById('pin-input').value;
+  if(pin!==PASSWORD){document.getElementById('login-err').textContent='Senha incorreta.';document.getElementById('pin-input').value='';return;}
+
+  const savedKey=ls('gemini_key');
+  if(!savedKey){
+    // Show API key field if not saved yet
+    const section=document.getElementById('api-key-section');
+    if(section.style.display==='none'||section.style.display===''){
+      section.style.display='flex';
+      document.getElementById('login-err').textContent='';
+      document.getElementById('api-key-input').focus();
+      return;
+    }
+    const apiKey=document.getElementById('api-key-input').value.trim();
+    if(!apiKey.startsWith('AIza')){document.getElementById('login-err').textContent='Chave inválida. Deve começar com AIza...';return;}
+    ls('gemini_key',apiKey);
+    GEMINI_KEY=apiKey;
+  } else {
+    GEMINI_KEY=savedKey;
+  }
+
+  ls('auth','1');
+  document.getElementById('login-screen').style.display='none';
+  boot();
 }
+
 document.getElementById('pin-input').addEventListener('keydown',e=>{if(e.key==='Enter')tryLogin();});
+document.getElementById('api-key-input').addEventListener('keydown',e=>{if(e.key==='Enter')tryLogin();});
 
 // ── BOOT ──────────────────────────────────────────────────
 async function boot(){
+  GEMINI_KEY=ls('gemini_key')||'';
   sync('syncing','☁️ Sincronizando...');
   try{
     const[day,log]=await Promise.all([sbGetDay(),sbGetLog()]);
@@ -295,7 +306,6 @@ async function boot(){
   const days=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
   const months=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
   document.getElementById('header-date').textContent=`${days[now.getDay()]}, ${now.getDate()} de ${months[now.getMonth()]}`;
-
   renderAll();
 }
 
@@ -305,10 +315,11 @@ function welcome(){
 
 // ── GEMINI ────────────────────────────────────────────────
 async function callGemini(userMsg){
+  const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`;
   const contents=[];
   for(const h of AI_HIST)contents.push({role:h.role==='assistant'?'model':'user',parts:[{text:h.content}]});
   contents.push({role:'user',parts:[{text:userMsg}]});
-  const res=await fetch(GEMINI_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system_instruction:{parts:[{text:SYSTEM_PROMPT}]},contents,generationConfig:{maxOutputTokens:1000,temperature:0.7}})});
+  const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system_instruction:{parts:[{text:SYSTEM_PROMPT}]},contents,generationConfig:{maxOutputTokens:1000,temperature:0.7}})});
   const data=await res.json();
   if(data.error)throw new Error(data.error.message);
   return data.candidates[0].content.parts[0].text;
@@ -365,7 +376,13 @@ async function sendMessage(text){
     ls('msgs',JSON.stringify(MSGS.slice(-80)));
   }catch(e){
     sync('err','⚠️ Erro');
-    MSGS.push({role:'bot',text:`Erro: ${e.message}`});
+    // If key is leaked/invalid, clear it so user can re-enter
+    if(e.message.includes('leaked')||e.message.includes('API key')){
+      ls('gemini_key','');
+      MSGS.push({role:'bot',text:'⚠️ Sua chave Gemini é inválida ou foi revogada. Saia e entre novamente para inserir uma nova chave.'});
+    } else {
+      MSGS.push({role:'bot',text:`Erro: ${e.message}`});
+    }
   }
   loading=false;renderAll();
 }
@@ -481,54 +498,27 @@ function renderAnalytics(){
     return;
   }
   const recent=[...LOG].slice(-7);
-
   function makeChart(data,getVal,color,unit){
     const vals=data.map(d=>getVal(d)||0);
     const maxVal=Math.max(...vals,1);
     return`<div class="chart-outer"><div class="bar-chart">${data.map((d,i)=>{
       const val=vals[i];const pct=Math.round((val/maxVal)*100);
       const parts=d.date?d.date.split('/'):['-','-'];
-      return`<div class="chart-col">
-        <div class="chart-bar" style="height:${Math.max(pct,2)}%;background:${color};">
-          <span class="chart-bar-val">${val}${unit}</span>
-        </div>
-        <div class="chart-bar-day">${parts[0]}/${parts[1]}</div>
-      </div>`;
+      return`<div class="chart-col"><div class="chart-bar" style="height:${Math.max(pct,2)}%;background:${color};"><span class="chart-bar-val">${val}${unit}</span></div><div class="chart-bar-day">${parts[0]}/${parts[1]}</div></div>`;
     }).join('')}</div></div>`;
   }
-
   let h='';
-  h+=`<div class="chart-section"><div class="chart-title">🍽️ Kcal Consumidas — últimos ${recent.length} dias</div>
-    ${makeChart(recent,d=>d.kcalIn,'#c8ff3e','')}
-    <div class="chart-legend"><div class="legend-item"><div class="legend-dot" style="background:#c8ff3e"></div>Kcal ingeridas</div></div>
-  </div>`;
-
-  h+=`<div class="chart-section"><div class="chart-title">🔥 Kcal Queimadas nos Treinos — últimos ${recent.length} dias</div>
-    ${makeChart(recent,d=>d.kcalOut,'#ff6b35','')}
-    <div class="chart-legend"><div class="legend-item"><div class="legend-dot" style="background:#ff6b35"></div>Kcal queimadas</div></div>
-  </div>`;
-
+  h+=`<div class="chart-section"><div class="chart-title">🍽️ Kcal Consumidas</div>${makeChart(recent,d=>d.kcalIn,'#c8ff3e','')}<div class="chart-legend"><div class="legend-item"><div class="legend-dot" style="background:#c8ff3e"></div>Kcal ingeridas</div></div></div>`;
+  h+=`<div class="chart-section"><div class="chart-title">🔥 Kcal Queimadas nos Treinos</div>${makeChart(recent,d=>d.kcalOut,'#ff6b35','')}<div class="chart-legend"><div class="legend-item"><div class="legend-dot" style="background:#ff6b35"></div>Kcal queimadas</div></div></div>`;
   const maxDef=Math.max(...recent.map(d=>Math.abs(d.deficit||0)),1);
-  h+=`<div class="chart-section"><div class="chart-title">⚖️ Déficit Real por Dia — últimos ${recent.length} dias</div>
-    <div class="chart-outer"><div class="bar-chart">${recent.map(d=>{
-      const val=d.deficit||0;const pct=Math.round((Math.abs(val)/maxDef)*100);
-      const col=val>=0?'#c8ff3e':'#ff6b35';
-      const parts=d.date?d.date.split('/'):['-','-'];
-      return`<div class="chart-col">
-        <div class="chart-bar" style="height:${Math.max(pct,2)}%;background:${col};">
-          <span class="chart-bar-val" style="color:${col}">${val>=0?'+':''}${val}</span>
-        </div>
-        <div class="chart-bar-day">${parts[0]}/${parts[1]}</div>
-      </div>`;
-    }).join('')}</div></div>
-    <div class="chart-legend"><div class="legend-item"><div class="legend-dot" style="background:#c8ff3e"></div>Déficit</div><div class="legend-item"><div class="legend-dot" style="background:#ff6b35"></div>Superávit</div></div>
-  </div>`;
-
+  h+=`<div class="chart-section"><div class="chart-title">⚖️ Déficit Real por Dia</div><div class="chart-outer"><div class="bar-chart">${recent.map(d=>{
+    const val=d.deficit||0;const pct=Math.round((Math.abs(val)/maxDef)*100);
+    const col=val>=0?'#c8ff3e':'#ff6b35';
+    const parts=d.date?d.date.split('/'):['-','-'];
+    return`<div class="chart-col"><div class="chart-bar" style="height:${Math.max(pct,2)}%;background:${col};"><span class="chart-bar-val" style="color:${col}">${val>=0?'+':''}${val}</span></div><div class="chart-bar-day">${parts[0]}/${parts[1]}</div></div>`;
+  }).join('')}</div></div><div class="chart-legend"><div class="legend-item"><div class="legend-dot" style="background:#c8ff3e"></div>Déficit</div><div class="legend-item"><div class="legend-dot" style="background:#ff6b35"></div>Superávit</div></div></div>`;
   if(recent.some(d=>d.humor!=null)){
-    h+=`<div class="chart-section"><div class="chart-title">😊 Humor por Dia — últimos ${recent.length} dias</div>
-      ${makeChart(recent,d=>d.humor,'#3ec8ff','/10')}
-      <div class="chart-legend"><div class="legend-item"><div class="legend-dot" style="background:#3ec8ff"></div>Humor</div></div>
-    </div>`;
+    h+=`<div class="chart-section"><div class="chart-title">😊 Humor por Dia</div>${makeChart(recent,d=>d.humor,'#3ec8ff','/10')}<div class="chart-legend"><div class="legend-item"><div class="legend-dot" style="background:#3ec8ff"></div>Humor</div></div></div>`;
   }
   el.innerHTML=h;
 }
